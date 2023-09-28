@@ -2,9 +2,11 @@
 #define INCLUDE_VGSSDK_H
 #include <stdio.h>
 
-class VGS {
+class VGS
+{
   public:
-    class GFX {
+    class GFX
+    {
       private:
         struct VirtualDisplay {
             unsigned short* buffer;
@@ -28,6 +30,8 @@ class VGS {
         void clearViewport();
         void clear(unsigned short color = 0);
         void pixel(int x, int y, unsigned short color);
+        void lineV(int x1, int y1, int y2, unsigned short color);
+        void lineH(int x1, int y1, int x2, unsigned short color);
         void line(int x1, int y1, int x2, int y2, unsigned short color);
         void box(int x, int y, int width, int height, unsigned short color);
         void boxf(int x, int y, int width, int height, unsigned short color);
@@ -36,7 +40,8 @@ class VGS {
         void image(int x, int y, int width, int height, unsigned short* buffer);
     };
 
-    class BGM {
+    class BGM
+    {
       private:
         void* context;
 
@@ -59,7 +64,8 @@ class VGS {
         bool isLoopSong();
     };
 
-    class IO {
+    class IO
+    {
         unsigned char gamepad();
         bool touch(int* x, int* y);
     };
@@ -74,7 +80,7 @@ class VGS {
     int getDisplayWidth() { return this->displayWidth; }
     int getDisplayHeight() { return this->displayHeight; }
 
-private:
+  private:
     int displayWidth;
     int displayHeight;
 };

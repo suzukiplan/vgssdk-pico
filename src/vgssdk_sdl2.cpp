@@ -1,8 +1,11 @@
+#include "SDL.h"
+#include "vgssdk.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "vgssdk.h"
-#include "SDL.h"
+
+#define abs_(x) (x >= 0 ? (x) : -(x))
+#define sgn_(x) (x >= 0 ? (1) : (-1))
 
 VGS vgs(240, 320);
 static SDL_Surface* windowSurface;
@@ -54,7 +57,7 @@ VGS::GFX::GFX(int width, int height)
     this->display.width = width;
     this->display.height = height;
     this->display.buffer = (unsigned short*)malloc(width * height * 2);
-} 
+}
 
 VGS::GFX::~GFX()
 {
@@ -95,6 +98,103 @@ void VGS::GFX::pixel(int x, int y, unsigned short color)
     *display = color16to32(color);
 }
 
+void VGS::GFX::lineV(int x1, int y1, int y2, unsigned short color)
+{
+    if (y2 < y1) {
+        auto w = y2;
+        y2 = y1;
+        y1 = w;
+    }
+    if (vgs.getDisplayHeight() <= y2) {
+        y2 = vgs.getDisplayHeight() - 1;
+    }
+    for (; y1 < y2; y1++) {
+        this->pixel(x1, y1, color);
+    }
+}
+
+void VGS::GFX::lineH(int x1, int y1, int x2, unsigned short color)
+{
+    if (x2 < x1) {
+        auto w = x2;
+        x2 = x1;
+        x1 = w;
+    }
+    if (vgs.getDisplayWidth() <= x2) {
+        x2 = vgs.getDisplayWidth() - 1;
+    }
+    for (; x1 < x2; x1++) {
+        this->pixel(x1, y1, color);
+    }
+}
+
+void VGS::GFX::line(int x1, int y1, int x2, int y2, unsigned short color)
+{
+    if (x1 == x2) {
+        this->lineV(x1, y1, y2, color);
+    } else if (y1 == y2) {
+        this->lineH(x1, y1, x2, color);
+    }
+    int ia, ib, ie;
+    int w;
+    int idx = x2 - x1;
+    int idy = y2 - y1;
+    if (!idx || !idy) {
+        if (x2 < x1) {
+            w = x1;
+            x1 = x2;
+            x2 = w;
+        }
+        if (y2 < y1) {
+            w = y1;
+            y1 = y2;
+            y2 = w;
+        }
+        if (0 == idy) {
+            for (; x1 <= x2; x1++) {
+                this->pixel(x1, y1, color);
+            }
+        } else {
+            for (; y1 <= y2; y1++) {
+                this->pixel(x1, y1, color);
+            }
+        }
+        return;
+    }
+    w = 1;
+    ia = abs_(idx);
+    ib = abs_(idy);
+    if (ia >= ib) {
+        ie = -abs_(idy);
+        while (w) {
+            this->pixel(x1, y1, color);
+            if (x1 == x2) {
+                break;
+            }
+            x1 += sgn_(idx);
+            ie += 2 * ib;
+            if (ie >= 0) {
+                y1 += sgn_(idy);
+                ie -= 2 * ia;
+            }
+        }
+    } else {
+        ie = -abs_(idx);
+        while (w) {
+            this->pixel(x1, y1, color);
+            if (y1 == y2) {
+                break;
+            }
+            y1 += sgn_(idy);
+            ie += 2 * ia;
+            if (ie >= 0) {
+                x1 += sgn_(idx);
+                ie -= 2 * ib;
+            }
+        }
+    }
+}
+
 VGS::BGM::BGM()
 {
 }
@@ -132,14 +232,13 @@ int main()
     log("SDL version: %d.%d.%d", sdlVersion.major, sdlVersion.minor, sdlVersion.patch);
 
     log("create SDL window");
-    SDL_Window *window = SDL_CreateWindow(
+    SDL_Window* window = SDL_CreateWindow(
         "VGS for SDL2",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
         vgs.getDisplayWidth(),
         vgs.getDisplayHeight(),
-        SDL_WINDOW_OPENGL
-    );
+        SDL_WINDOW_OPENGL);
 
     log("Get SDL window surface");
     windowSurface = SDL_GetWindowSurface(window);
