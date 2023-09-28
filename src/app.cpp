@@ -7,6 +7,8 @@ extern VGS vgs;
 extern "C" void vgs_setup()
 {
     srand(time(nullptr));
+    vgs.gfx.box(8, 8, 240 - 16, 32, 0x07C0);
+    vgs.gfx.boxf(8, 48, 240 - 16, 32, 0xF800);
     return;
 }
 

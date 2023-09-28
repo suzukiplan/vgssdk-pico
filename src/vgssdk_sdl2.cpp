@@ -105,9 +105,6 @@ void VGS::GFX::lineV(int x1, int y1, int y2, unsigned short color)
         y2 = y1;
         y1 = w;
     }
-    if (vgs.getDisplayHeight() <= y2) {
-        y2 = vgs.getDisplayHeight() - 1;
-    }
     for (; y1 < y2; y1++) {
         this->pixel(x1, y1, color);
     }
@@ -119,9 +116,6 @@ void VGS::GFX::lineH(int x1, int y1, int x2, unsigned short color)
         auto w = x2;
         x2 = x1;
         x1 = w;
-    }
-    if (vgs.getDisplayWidth() <= x2) {
-        x2 = vgs.getDisplayWidth() - 1;
     }
     for (; x1 < x2; x1++) {
         this->pixel(x1, y1, color);
@@ -191,6 +185,29 @@ void VGS::GFX::line(int x1, int y1, int x2, int y2, unsigned short color)
                 x1 += sgn_(idx);
                 ie -= 2 * ib;
             }
+        }
+    }
+}
+
+void VGS::GFX::box(int x, int y, int width, int height, unsigned short color)
+{
+    if (0 < width && 0 < height) {
+        int x2 = x + width - 1;
+        int y2 = y + height - 1;
+        this->lineH(x, y, x2, color);
+        this->lineH(x, y2, x2, color);
+        this->lineV(x, y, y2, color);
+        this->lineV(x2, y, y2, color);
+    }
+}
+
+void VGS::GFX::boxf(int x, int y, int width, int height, unsigned short color)
+{
+    if (0 < width && 0 < height) {
+        int x2 = x + width - 1;
+        int y2 = y + height;
+        for (; y < y2; y++) {
+            this->lineH(x, y, x2, color);
         }
     }
 }
