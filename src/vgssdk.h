@@ -36,6 +36,7 @@ class VGS
         void box(int x, int y, int width, int height, unsigned short color);
         void boxf(int x, int y, int width, int height, unsigned short color);
         void image(int x, int y, int width, int height, unsigned short* buffer);
+        void push(int x, int y, GFX* gfx);
     };
 
     class BGM
@@ -64,6 +65,7 @@ class VGS
 
     class IO
     {
+      public:
         unsigned char gamepad();
         bool touch(int* x, int* y);
     };
@@ -75,8 +77,8 @@ class VGS
     VGS::GFX gfx;
     VGS::BGM bgm;
     VGS::IO io;
-    int getDisplayWidth() { return this->displayWidth; }
-    int getDisplayHeight() { return this->displayHeight; }
+    inline int getDisplayWidth() { return this->displayWidth; }
+    inline int getDisplayHeight() { return this->displayHeight; }
 
   private:
     int displayWidth;
