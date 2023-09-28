@@ -83,6 +83,18 @@ int main()
         log("SDL_GetWindowSurface failed: %s", SDL_GetError());
         exit(-1);
     }
+
+    log("PixelFormat: %d bits (%d bytes)", (int)windowSurface->format->BitsPerPixel, (int)windowSurface->format->BytesPerPixel);
+    log("Rmask: %08X", (int)windowSurface->format->Rmask);
+    log("Gmask: %08X", (int)windowSurface->format->Gmask);
+    log("Bmask: %08X", (int)windowSurface->format->Bmask);
+    log("Amask: %08X", (int)windowSurface->format->Amask);
+
+    if (4 != windowSurface->format->BytesPerPixel) {
+        log("unsupported pixel format (support only 4 bytes / pixel)");
+        exit(-1);
+    }
+
     vgs_setup();
     SDL_UpdateWindowSurface(window);
 
