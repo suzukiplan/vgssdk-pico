@@ -26,17 +26,15 @@ class VGS
         GFX();
         GFX(int width, int height);
         ~GFX();
+        void clear(unsigned short color = 0);
         void setViewport(int x, int y, int width, int height);
         void clearViewport();
-        void clear(unsigned short color = 0);
         void pixel(int x, int y, unsigned short color);
         void lineV(int x1, int y1, int y2, unsigned short color);
         void lineH(int x1, int y1, int x2, unsigned short color);
         void line(int x1, int y1, int x2, int y2, unsigned short color);
         void box(int x, int y, int width, int height, unsigned short color);
         void boxf(int x, int y, int width, int height, unsigned short color);
-        void smallPrint(int x, int y, const char* format, ...);
-        void print(int x, int y, const char* format, ...);
         void image(int x, int y, int width, int height, unsigned short* buffer);
     };
 
