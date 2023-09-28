@@ -4,8 +4,43 @@
 #include "vgssdk.h"
 #include "SDL.h"
 
-VGS vgs;
+VGS vgs(240, 320);
 static SDL_Surface* windowSurface;
+
+static inline unsigned int bit5to8(unsigned char bit5)
+{
+    unsigned char bit8 = bit5 | ((bit5 & 0b11100000) >> 5);
+    unsigned int result = bit8;
+    result <<= 8;
+    result |= bit8;
+    result <<= 8;
+    result |= bit8;
+    result <<= 8;
+    result |= bit8;
+    return result;
+}
+
+static inline unsigned char bit6to8(unsigned char bit6)
+{
+    unsigned char bit8 = bit6 | ((bit6 & 0b11000000) >> 6);
+    unsigned int result = bit8;
+    result <<= 8;
+    result |= bit8;
+    result <<= 8;
+    result |= bit8;
+    result <<= 8;
+    result |= bit8;
+    return result;
+}
+
+static inline unsigned int color16to32(unsigned short rgb565)
+{
+    unsigned int color32 = bit5to8((rgb565 & 0b1111100000000000) >> 8) & windowSurface->format->Rmask;
+    color32 |= bit5to8((rgb565 & 0b0000011111100000) >> 2) & windowSurface->format->Gmask;
+    color32 |= bit5to8((rgb565 & 0b0000000000011111) << 3) & windowSurface->format->Bmask;
+    color32 |= windowSurface->format->Amask;
+    return color32;
+}
 
 VGS::GFX::GFX()
 {
@@ -28,9 +63,36 @@ VGS::GFX::~GFX()
     }
 }
 
+void VGS::GFX::setViewport(int x, int y, int width, int height)
+{
+    this->viewport.enabled = true;
+    this->viewport.x = x;
+    this->viewport.y = y;
+    this->viewport.width = width;
+    this->viewport.height = height;
+}
+
 void VGS::GFX::clearViewport()
 {
     memset(&this->viewport, 0, sizeof(this->viewport));
+}
+
+void VGS::GFX::pixel(int x, int y, unsigned short color)
+{
+    if (this->viewport.enabled) {
+        if (x < 0 || y < 0 || this->viewport.width <= x || this->viewport.height <= y) {
+            return;
+        }
+        x += this->viewport.x;
+        y += this->viewport.y;
+    }
+    if (x < 0 || y < 0 || vgs.getDisplayWidth() <= x || vgs.getDisplayHeight() <= y) {
+        return;
+    }
+    auto display = (unsigned int*)windowSurface->pixels;
+    display += y * windowSurface->pitch / windowSurface->format->BytesPerPixel;
+    display += x;
+    *display = color16to32(color);
 }
 
 VGS::BGM::BGM()
@@ -41,9 +103,11 @@ VGS::BGM::~BGM()
 {
 }
 
-VGS::VGS()
+VGS::VGS(int displayWidth, int displayHeight)
 {
     this->halt = false;
+    this->displayWidth = displayWidth;
+    this->displayHeight = displayHeight;
 }
 
 VGS::~VGS()
@@ -72,8 +136,8 @@ int main()
         "VGS for SDL2",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        240,
-        320,
+        vgs.getDisplayWidth(),
+        vgs.getDisplayHeight(),
         SDL_WINDOW_OPENGL
     );
 

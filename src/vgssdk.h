@@ -66,11 +66,17 @@ class VGS {
 
     bool halt;
 
-    VGS();
+    VGS(int displayWidth, int displayHeight);
     ~VGS();
     VGS::GFX gfx;
     VGS::BGM bgm;
     VGS::IO io;
+    int getDisplayWidth() { return this->displayWidth; }
+    int getDisplayHeight() { return this->displayHeight; }
+
+private:
+    int displayWidth;
+    int displayHeight;
 };
 
 // Implement on the app side (only once at startup)
