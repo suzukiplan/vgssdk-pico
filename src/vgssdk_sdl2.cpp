@@ -75,6 +75,18 @@ void VGS::GFX::setViewport(int x, int y, int width, int height)
     this->viewport.height = height;
 }
 
+void VGS::GFX::clear(unsigned short color)
+{
+    auto color32 = color16to32(color);
+    auto display = (unsigned int*)windowSurface->pixels;
+    for (int y = 0; y < windowSurface->h; y++) {
+        for (int x = 0; x < windowSurface->w; x++) {
+            display[x] = color32;
+        }
+        display += windowSurface->pitch / windowSurface->format->BytesPerPixel;
+    }
+}
+
 void VGS::GFX::clearViewport()
 {
     memset(&this->viewport, 0, sizeof(this->viewport));
