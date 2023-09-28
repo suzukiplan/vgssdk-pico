@@ -5,6 +5,7 @@
 #include "SDL.h"
 
 VGS vgs;
+static SDL_Surface* windowSurface;
 
 VGS::GFX::GFX()
 {
@@ -66,6 +67,7 @@ int main()
     SDL_GetVersion(&sdlVersion);
     log("SDL version: %d.%d.%d", sdlVersion.major, sdlVersion.minor, sdlVersion.patch);
 
+    log("create SDL window");
     SDL_Window *window = SDL_CreateWindow(
         "VGS for SDL2",
         SDL_WINDOWPOS_UNDEFINED,
@@ -75,8 +77,14 @@ int main()
         SDL_WINDOW_OPENGL
     );
 
-    log("execute vgs_setup()");
+    log("Get SDL window surface");
+    windowSurface = SDL_GetWindowSurface(window);
+    if (!windowSurface) {
+        log("SDL_GetWindowSurface failed: %s", SDL_GetError());
+        exit(-1);
+    }
     vgs_setup();
+    SDL_UpdateWindowSurface(window);
 
     log("Continue to execute vgs_loop while no stop signal is detected...");
     SDL_Event event;
@@ -89,6 +97,7 @@ int main()
                 break;
             }
         }
+        SDL_UpdateWindowSurface(window);
     }
 
     if (vgs.halt) {
