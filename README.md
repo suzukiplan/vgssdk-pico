@@ -190,7 +190,6 @@ void push(int x, int y, GFX* gfx);
 
 > 現時点の [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) ではジョイパッドの対応が行われていませんが、GPIO1〜8を用いて 8ボタン 形式のジョイパッドの入力をサポートすることができるものとします。
 
-
 ### `VGS::IO::joypad structure` <WIP>
 
 ```c++
