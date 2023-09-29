@@ -115,6 +115,7 @@ void set60FpsMode(bool on);
 - `on`:
   - `true`: `vgs_loop` を 60fps の間隔で呼び出す
   - `false`: `vgs_loop` をノーウェイトで呼び出す
+- 60fps モードを on にすると `vgs_loop` の呼び出しの前に `vgs.gfx.startWrite`、呼び出し後に `vgs.gfx.endWrite` が暗黙的に呼び出されるようになります
 
 ## `VGS::GFX class`
 
