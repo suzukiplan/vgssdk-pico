@@ -36,7 +36,7 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 3. `extern "C" void vgs_setup() { }` に起動時の初期化処理を記述
 4. `extern "C" void vgs_loop() { }` にメインループ処理を記述
 
-> サンプリアプリ [app.cpp](src/app.cpp) の実装を参照してください。
+> サンプリアプリ [app.cpp](example/app.cpp) の実装を参照してください。
 
 なお、[東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)が対応する SoC (RaspberryPi Pico) はマルチコアコア（2 cores）の構成ですが、片方のコアは VGS の音声再生に専念させるため vgssdk-pico を用いるアプリはシングルコア（シングルスレッド & シングルタスク）で設計するものとします。
 
