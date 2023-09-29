@@ -16,8 +16,8 @@ vgssdk-pico を用いることで、パソコン（Linux or macOS）のみで効
 
 ## WIP status
 
-- [ ] SDL2 で macOS 対応 (inprogress)
-- [ ] SDL2 で Linux 対応
+- [x] SDL2 で macOS 対応
+- [x] SDL2 で Linux 対応
 - [ ] [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) 対応
 
 ## How to build example app
