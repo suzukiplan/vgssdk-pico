@@ -40,7 +40,12 @@ VGS::GFX::GFX(int width, int height)
     this->counter = 0;
     this->vDisplay.width = width;
     this->vDisplay.height = height;
-    this->vDisplay.buffer = (unsigned short*)new TFT_eSprite(&tft);
+
+    auto sprite = new TFT_eSprite(&tft);
+    sprite->createSprite(width, height);
+    sprite->setColorDepth(16);
+    this->vDisplay.buffer = (unsigned short*)sprite;
+    this->clearViewport();
 }
 
 VGS::GFX::~GFX()
@@ -349,40 +354,27 @@ void setup()
         0b100};
     tft.setTouch(touch);
 #endif
-    tft.fillScreen(0);
+
     vgs.bgm.setMasterVolume(16);
     vgs_setup();
 
     delay(200);
     digitalWrite(25, LOW);
- }
+}
 
 void loop()
 {
-    unsigned int loopCount = 0;
-    const int wait60fps[3] = {17, 17, 16};
-
-    while (!vgs.halt) {
-        loopCount++;
-        auto start = std::chrono::system_clock::now();
-        uint16_t tx, ty;
-        vgs.io.touch.on = tft.getTouch(&tx, &ty);
-        if (vgs.io.touch.on) {
-            vgs.io.touch.x = tx;
-            vgs.io.touch.y = ty;
-        }
-        if (vgs.is60FpsMode()) {
-            vgs.gfx.startWrite();
-        }
-        vgs_loop();
-        if (vgs.is60FpsMode()) {
-            vgs.gfx.endWrite();
-            std::chrono::duration<double> diff = std::chrono::system_clock::now() - start;
-            int ms = (int)(diff.count() * 1000);
-            int wait = wait60fps[loopCount % 3];
-            if (ms < wait) {
-                vgs.delay((wait - ms) * 1000);
-            }
-        }
+    uint16_t tx, ty;
+    vgs.io.touch.on = tft.getTouch(&tx, &ty);
+    if (vgs.io.touch.on) {
+        vgs.io.touch.x = tx;
+        vgs.io.touch.y = ty;
+    }
+    if (vgs.is60FpsMode()) {
+        vgs.gfx.startWrite();
+    }
+    vgs_loop();
+    if (vgs.is60FpsMode()) {
+        vgs.gfx.endWrite();
     }
 }
