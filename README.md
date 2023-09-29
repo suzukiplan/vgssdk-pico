@@ -183,6 +183,29 @@ void push(int x, int y, GFX* gfx);
 
 ## `VGS::IO class`
 
+[東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)がサポートする入出力機器は次の通りです:
+
+1. タッチパネル（シングルタッチ）
+2. 8ボタン（D-PAD + Start/Select + A/B）ジョイパッド <WIP>
+
+> 現時点の [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) ではジョイパッドの対応が行われていませんが、GPIO1〜8を用いて 8ボタン 形式のジョイパッドの入力をサポートすることができるものとします。
+
+
+### `VGS::IO::joypad structure` <WIP>
+
+```c++
+struct Joypad {
+    bool up;
+    bool down;
+    bool left;
+    bool right;
+    bool start;
+    bool select;
+    bool a;
+    bool b;
+} joypad;
+```
+
 ### `VGS::IO::touch structure`
 
 ```c++
