@@ -20,6 +20,37 @@ vgssdk-pico を用いることで、パソコン（Linux or macOS）のみで効
 - [ ] SDL2 で Linux 対応
 - [ ] [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) 対応
 
+## How to build example app
+
+### macOS
+
+XCODE と HomeBrew がインストールされた状態でターミナルで以下のコマンドを実行することでビルドと実行ができます。
+
+```bash
+# SDL2 をインストール
+brew install sdl2
+
+# リポジトリを取得
+git clone https://github.com/suzukiplan/vgssdk-pico
+
+# リポジトリのディレクトリへ移動
+cd vgssdk-pico
+
+# ビルド (macOS用)
+make
+
+# 実行
+./app
+```
+
+### Linux
+
+TODO
+
+### [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)
+
+TODO
+
 ## API outline
 
 vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します。
