@@ -27,7 +27,6 @@ extern "C" void vgs_setup()
     vgfx.line(6, 26, 26, 6, 0x0000);
     vgs.bgm.load(bgmTestData, sizeof(bgmTestData));
     vgs.gfx.endWrite();
-    return;
 }
 
 extern "C" void vgs_loop()
@@ -50,5 +49,5 @@ extern "C" void vgs_loop()
         tx = -1;
         ty = -1;
     }
-    return;
+    vgs.delay(10);
 }

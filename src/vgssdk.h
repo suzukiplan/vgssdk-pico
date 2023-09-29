@@ -108,6 +108,7 @@ class VGS
     VGS::GFX gfx;
     VGS::BGM bgm;
     VGS::IO io;
+    void delay(int ms);
 };
 
 // Implement on the app side (only once at startup)

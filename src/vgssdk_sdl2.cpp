@@ -440,6 +440,11 @@ VGS::~VGS()
 {
 }
 
+void VGS::delay(int ms)
+{
+    usleep(ms * 1000);
+}
+
 int main()
 {
     log("Booting VGS for SDL2.");

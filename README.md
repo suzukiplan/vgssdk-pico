@@ -98,6 +98,14 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 - `vgs.bgm` ... [VGS::BGM class](#vgsbgm-class) の インスタンス
 - `vgs.io` ... [VGS::IO class](#vgsio-class) の インスタンス
 
+### `VGS::delay method`
+
+```c++
+void delay(int ms);
+```
+
+指定した時間（ミリ秒）待機する
+
 ## `VGS::GFX class`
 
 ### Constructor
