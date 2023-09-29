@@ -444,7 +444,7 @@ NOTES:
 また、本プログラムでは以下の Open Source Software を利用しています。
 
 - LZ4 Library
-  - Web Site: https://github.com/lz4/lz4 - lib
+  - Web Site: https://github.com/lz4/lz4 - [lib](https://github.com/lz4/lz4/tree/dev/lib)
   - License: [2-Clause BSD](./licenses-copy/lz4-library.txt)
   - `Copyright (c) 2011-2020, Yann Collet`
 - TFT eSPI
