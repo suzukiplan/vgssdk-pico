@@ -4,11 +4,11 @@
 
 Video Game System SDK - Pico (vgssdk-pico) は、[東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)及びその互換ハードウェア向けのアプリケーションを効率的に開発することを目的としたシミュレータと API を提供する SDK です。
 
-vgssdk-pico を用いて開発したアプリは、OS 依存の API を使用しない限り、次のシステム環境下で同一の動作動作することができます:
+vgssdk-pico を用いて開発したアプリは、OS 依存の API を使用しない限り、次のシステム環境下で同一の動作をします:
 
-  - [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) (RaspberryPi Pico + LCD + DAC)
-  - macOS (SDL2 で [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) をシミュレート)
-  - Linux (SDL2 で [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) をシミュレート)
+- [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) (RaspberryPi Pico + LCD + DAC)
+- macOS (SDL2 で [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) をシミュレート)
+- Linux (SDL2 で [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) をシミュレート)
 
 これにより、[東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)の実機環境が無くても、パソコン（Linux or macOS）のみで効率的に[東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)向けのアプリケーション開発が可能になります。
 
