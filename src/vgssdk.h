@@ -9,6 +9,8 @@ class VGS
     class GFX
     {
       private:
+        unsigned int counter;
+
         struct VirtualDisplay {
             unsigned short* buffer;
             int width;
@@ -26,6 +28,8 @@ class VGS
         GFX();
         GFX(int width, int height);
         ~GFX();
+        void startWrite();
+        void endWrite();
         inline unsigned short* getVirtualBuffer() { return vDisplay.buffer; }
         inline bool isVirtual() { return nullptr != this->getVirtualBuffer(); }
         int getWidth();

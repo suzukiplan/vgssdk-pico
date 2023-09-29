@@ -14,6 +14,7 @@
 #define sgn_(x) (x >= 0 ? (1) : (-1))
 
 VGS vgs;
+static SDL_Window* window;
 static SDL_Surface* windowSurface;
 
 static void log(const char* format, ...)
@@ -72,12 +73,14 @@ VGS::GFX::GFX()
 {
     log("create GFX for Physical Display (%d, %d)", VGS_DISPLAY_WIDTH, VGS_DISPLAY_HEIGHT);
     memset(&this->vDisplay, 0, sizeof(this->vDisplay));
+    this->counter = 0;
     this->clearViewport();
 }
 
 VGS::GFX::GFX(int width, int height)
 {
     log("create GFX for Virtual Display (%d, %d)", width, height);
+    this->counter = 0;
     this->vDisplay.width = width;
     this->vDisplay.height = height;
     this->vDisplay.buffer = (unsigned short*)malloc(width * height * 2);
@@ -88,6 +91,21 @@ VGS::GFX::~GFX()
 {
     if (this->vDisplay.buffer) {
         free(this->vDisplay.buffer);
+    }
+}
+
+void VGS::GFX::startWrite()
+{
+    this->counter++;
+}
+
+void VGS::GFX::endWrite()
+{
+    if (0 < this->counter) {
+        this->counter--;
+        if (0 == this->counter && !this->isVirtual()) {
+            SDL_UpdateWindowSurface(window);
+        }
     }
 }
 
@@ -456,7 +474,7 @@ int main()
     SDL_PauseAudioDevice(bgmAudioDeviceId, 0);
 
     log("create SDL window");
-    SDL_Window* window = SDL_CreateWindow(
+    window = SDL_CreateWindow(
         "VGS for SDL2",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
@@ -503,7 +521,6 @@ int main()
                 SDL_GetMouseState(&vgs.io.touch.x, &vgs.io.touch.y);
             }
         }
-        SDL_UpdateWindowSurface(window);
     }
 
     if (vgs.halt) {
