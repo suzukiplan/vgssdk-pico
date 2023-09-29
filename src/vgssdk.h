@@ -1,3 +1,8 @@
+/**
+ * VGS SDK Pico
+ * License under MIT: https://github.com/suzukiplan/vgssdk-pico/blob/master/LICENSE.txt
+ * (C)2023, SUZUKI PLAN
+ */
 #ifndef INCLUDE_VGSSDK_H
 #define INCLUDE_VGSSDK_H
 #include <stdio.h>

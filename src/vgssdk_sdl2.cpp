@@ -1,3 +1,8 @@
+/**
+ * VGS SDK Pico for SDL2 (macOS and Linux)
+ * License under MIT: https://github.com/suzukiplan/vgssdk-pico/blob/master/LICENSE.txt
+ * (C)2023, SUZUKI PLAN
+ */
 #include "SDL.h"
 #include "vgsdecv.hpp"
 #include "vgssdk.h"

@@ -1,6 +1,6 @@
 /**
  * VGS BGM Decoder for Variable NOTEs (vgsftv compressed data)
- * License under GPLv3: https://github.com/suzukiplan/tohovgs-pico/blob/master/LICENSE.txt
+ * License under MIT: https://github.com/suzukiplan/vgssdk-pico/blob/master/LICENSE.txt
  * (C)2023, SUZUKI PLAN
  */
 
