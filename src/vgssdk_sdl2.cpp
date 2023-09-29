@@ -292,6 +292,17 @@ void VGS::GFX::image(int x, int y, int width, int height, unsigned short* buffer
     }
 }
 
+void VGS::GFX::push(int x, int y, GFX* gfx)
+{
+    if (!gfx->isVirtual()) return;
+    int ptr = 0;
+    for (int yy = 0; yy < gfx->getHeight(); yy++) {
+        for (int xx = 0; xx < gfx->getWidth(); xx++) {
+            this->pixel(x + xx, y + yy, gfx->getVirtualBuffer()[ptr++]);
+        }
+    }
+}
+
 static SDL_AudioDeviceID bgmAudioDeviceId;
 static bool bgmLoaded;
 

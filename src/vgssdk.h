@@ -22,12 +22,12 @@ class VGS
             int height;
         } viewport;
 
-        inline bool isVirtual() { return nullptr != this->vDisplay.buffer; }
-
       public:
         GFX();
         GFX(int width, int height);
         ~GFX();
+        inline unsigned short* getVirtualBuffer() { return vDisplay.buffer; }
+        inline bool isVirtual() { return nullptr != this->getVirtualBuffer(); }
         int getWidth();
         int getHeight();
         void clear(unsigned short color = 0);
