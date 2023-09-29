@@ -10,7 +10,9 @@ vgssdk-pico を用いて開発したアプリは、OS 依存の API を使用し
 - macOS (SDL2 で [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) をシミュレート)
 - Linux (SDL2 で [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) をシミュレート)
 
-これにより、[東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)の実機環境が無くても、パソコン（Linux or macOS）のみで効率的に[東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)向けのアプリケーション開発が可能になります。
+vgssdk-pico を用いることで、パソコン（Linux or macOS）のみで効率的に[東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)向けアプリケーションの開発ができるようになります。
+
+> スマホアプリを iOS のシミュレータ や Android のエミュレータで開発するようなイメージのものと思っていただければ大丈夫です。
 
 ## WIP status
 
