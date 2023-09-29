@@ -44,24 +44,26 @@ class VGS
     {
       private:
         void* context;
+        bool paused;
 
       public:
         BGM();
         ~BGM();
-        void load(const void* buffer, size_t size);
+        void* getContext() { return this->context; }
         void pause();
         void resume();
-        void stop();
+        bool isPaused() { return this->paused; }
+        void load(const void* buffer, size_t size);
+        int getMasterVolume();
+        void setMasterVolume(int masterVolume);
         void fadeout();
-        bool isPlaying();
-        int length();
-        int currentPosition();
-        void seekTo(int position);
-        int loopPosition();
-        int tone(int ch);
-        int key(int ch);
-        int loopCount();
-        bool isLoopSong();
+        bool isPlayEnd();
+        int getLoopCount();
+        unsigned char getTone(int cn);
+        unsigned char getKey(int cn);
+        unsigned int getLengthTime();
+        unsigned int getLoopTime();
+        unsigned int getDurationTime();
     };
 
     class IO

@@ -1,14 +1,27 @@
 #include "SDL.h"
+#include "vgsdecv.hpp"
 #include "vgssdk.h"
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define abs_(x) (x >= 0 ? (x) : -(x))
 #define sgn_(x) (x >= 0 ? (1) : (-1))
 
 VGS vgs(240, 320);
 static SDL_Surface* windowSurface;
+
+static void log(const char* format, ...)
+{
+    char buf[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buf, sizeof(buf), format, args);
+    va_end(args);
+    puts(buf);
+}
 
 static inline unsigned int bit5to8(unsigned char bit5)
 {
@@ -224,12 +237,114 @@ void VGS::GFX::boxf(int x, int y, int width, int height, unsigned short color)
     }
 }
 
+static SDL_AudioDeviceID bgmAudioDeviceId;
+static bool bgmLoaded;
+
+static void bgmCallback(void* userdata, Uint8* stream, int len)
+{
+    if (bgmLoaded) {
+        auto bgm = (VGS::BGM*)userdata;
+        auto decoder = (VGSDecoder*)bgm->getContext();
+        decoder->execute(stream, len);
+    } else {
+        memset(stream, 0, len);
+    }
+}
+
 VGS::BGM::BGM()
 {
+    this->context = new VGSDecoder();
+    bgmLoaded = false;
 }
 
 VGS::BGM::~BGM()
 {
+    delete (VGSDecoder*)this->context;
+}
+
+void VGS::BGM::pause()
+{
+    if (bgmAudioDeviceId && !this->paused) {
+        SDL_PauseAudioDevice(bgmAudioDeviceId, 1);
+        this->paused = true;
+    }
+}
+
+void VGS::BGM::resume()
+{
+    if (bgmAudioDeviceId && this->paused) {
+        SDL_PauseAudioDevice(bgmAudioDeviceId, 0);
+        this->paused = false;
+    }
+}
+
+void VGS::BGM::load(const void* buffer, size_t size)
+{
+    if (bgmAudioDeviceId) {
+        this->pause();
+        SDL_LockAudioDevice(bgmAudioDeviceId);
+        bgmLoaded = ((VGSDecoder*)this->context)->load(buffer, size);
+        SDL_UnlockAudioDevice(bgmAudioDeviceId);
+        this->resume();
+    }
+}
+
+int VGS::BGM::getMasterVolume()
+{
+    return ((VGSDecoder*)this->context)->getMasterVolume();
+}
+
+void VGS::BGM::setMasterVolume(int masterVolume)
+{
+    ((VGSDecoder*)this->context)->setMasterVolume(masterVolume);
+}
+
+void VGS::BGM::fadeout()
+{
+    ((VGSDecoder*)this->context)->fadeout();
+}
+
+bool VGS::BGM::isPlayEnd()
+{
+    return ((VGSDecoder*)this->context)->isPlayEnd();
+}
+
+int VGS::BGM::getLoopCount()
+{
+    return ((VGSDecoder*)this->context)->getLoopCount();
+}
+
+unsigned char VGS::BGM::getTone(int cn)
+{
+    if (0 <= cn && cn < 6) {
+        return ((VGSDecoder*)this->context)->getTone(cn & 0xFF);
+    } else {
+        return 0xFF;
+    }
+}
+
+unsigned char VGS::BGM::getKey(int cn)
+{
+    if (0 <= cn && cn < 6) {
+        return ((VGSDecoder*)this->context)->getKey(cn & 0xFF);
+    } else {
+        return 0xFF;
+    }
+}
+
+unsigned int VGS::BGM::getLengthTime()
+{
+    return ((VGSDecoder*)this->context)->getLengthTime();
+}
+
+unsigned int VGS::BGM::getLoopTime()
+{
+    return ((VGSDecoder*)this->context)->getLoopTime();
+}
+
+unsigned int VGS::BGM::getDurationTime()
+{
+    return ((VGSDecoder*)this->context)->getDurationTime();
 }
 
 VGS::VGS(int displayWidth, int displayHeight)
@@ -241,16 +356,7 @@ VGS::VGS(int displayWidth, int displayHeight)
 
 VGS::~VGS()
 {
-}
-
-static void log(const char* format, ...)
-{
-    char buf[256];
-    va_list args;
-    va_start(args, format);
-    vsnprintf(buf, sizeof(buf), format, args);
-    va_end(args);
-    puts(buf);
+    SDL_Quit();
 }
 
 int main()
@@ -259,6 +365,28 @@ int main()
     SDL_version sdlVersion;
     SDL_GetVersion(&sdlVersion);
     log("SDL version: %d.%d.%d", sdlVersion.major, sdlVersion.minor, sdlVersion.patch);
+
+    log("init SDL");
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
+        log("SDL_Init failed: %s", SDL_GetError());
+        exit(-1);
+    }
+
+    log("init AudioDriver");
+    SDL_AudioSpec desired;
+    SDL_AudioSpec obtained;
+    desired.freq = 22050;
+    desired.format = AUDIO_S16LSB;
+    desired.channels = 0;
+    desired.samples = 2048;
+    desired.callback = bgmCallback;
+    desired.userdata = &vgs.bgm;
+    bgmAudioDeviceId = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
+    if (0 == bgmAudioDeviceId) {
+        log(" ... SDL_OpenAudioDevice failed: %s", SDL_GetError());
+        exit(-1);
+    }
+    SDL_PauseAudioDevice(bgmAudioDeviceId, 0);
 
     log("create SDL window");
     SDL_Window* window = SDL_CreateWindow(
@@ -316,5 +444,9 @@ int main()
     } else {
         log("halted by system");
     }
+
+    vgs.bgm.pause();
+    SDL_CloseAudioDevice(bgmAudioDeviceId);
+    bgmAudioDeviceId = 0;
     return 0;
 }
