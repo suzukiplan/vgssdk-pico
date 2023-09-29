@@ -46,8 +46,10 @@ extern "C" void vgs_loop()
             ty = vgs.io.touch.y;
             printf("touch %d, %d\n", tx, ty);
         }
+        vgs.bgm.pause();
     } else {
         tx = -1;
         ty = -1;
+        vgs.bgm.resume();
     }
 }
