@@ -217,7 +217,7 @@ LZ4 で圧縮された VGS の可変方式 BGM データファイルを読み込
 
 > 【参考】対応データ作成方法
 > 
-> 1. [vgs-mml-compier](https://github.com/suzukiplan/vgs-mml-compiler) で MML をコンパイル
+> 1. [vgsmml](https://github.com/suzukiplan/tohovgs-pico/tree/master/tools/vgsmml) で MML をコンパイル
 > 2. [vgsftv](https://github.com/suzukiplan/tohovgs-pico/tree/master/tools/vgsftv) で可変化方式にコンバート
 > 3. [vgslz4](https://github.com/suzukiplan/tohovgs-pico/tree/master/tools/vgslz4) で LZ4 圧縮
 
