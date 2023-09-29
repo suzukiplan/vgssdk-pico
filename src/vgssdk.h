@@ -1,6 +1,7 @@
 #ifndef INCLUDE_VGSSDK_H
 #define INCLUDE_VGSSDK_H
 #include <stdio.h>
+#include <string.h>
 
 class VGS
 {
@@ -66,8 +67,29 @@ class VGS
     class IO
     {
       public:
-        unsigned char gamepad();
-        bool touch(int* x, int* y);
+        // TODO: Joypad for tohovgs-pico is not implemented yet.
+        struct Joypad {
+            bool up;     // TODO: Assuming GPIO1 assignment
+            bool down;   // TODO: Assuming GPIO2 assignment
+            bool left;   // TODO: Assuming GPIO3 assignment
+            bool right;  // TODO: Assuming GPIO4 assignment
+            bool start;  // TODO: Assuming GPIO5 assignment
+            bool select; // TODO: Assuming GPIO6 assignment
+            bool a;      // TODO: Assuming GPIO7 assignment
+            bool b;      // TODO: Assuming GPIO8 assignment
+        } joypad;
+
+        struct Touch {
+            bool on;
+            int x;
+            int y;
+        } touch;
+
+        IO()
+        {
+            memset(&joypad, 0, sizeof(joypad));
+            memset(&touch, 0, sizeof(touch));
+        }
     };
 
     bool halt;

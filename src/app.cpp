@@ -15,7 +15,19 @@ extern "C" void vgs_setup()
 
 extern "C" void vgs_loop()
 {
+    static int tx;
+    static int ty;
     vgs.gfx.pixel(rand() % vgs.getDisplayWidth(), rand() % vgs.getDisplayHeight(), rand() & 0xFFFF);
     vgs.gfx.line(rand() % vgs.getDisplayWidth(), rand() % vgs.getDisplayHeight(), rand() % vgs.getDisplayWidth(), rand() % vgs.getDisplayHeight(), rand() & 0xFFFF);
+    if (vgs.io.touch.on) {
+        if (tx != vgs.io.touch.x || ty != vgs.io.touch.y) {
+            tx = vgs.io.touch.x;
+            ty = vgs.io.touch.y;
+            printf("touch %d, %d\n", tx, ty);
+        }
+    } else {
+        tx = -1;
+        ty = -1;
+    }
     return;
 }

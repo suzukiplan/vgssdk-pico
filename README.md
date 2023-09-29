@@ -183,6 +183,25 @@ void push(int x, int y, GFX* gfx);
 
 ## `VGS::IO class`
 
+### `VGS::IO::touch structure`
+
+```c++
+struct Touch {
+    bool on;
+    int x;
+    int y;
+} touch;
+```
+
+- `on` : タッチ中は true
+- `x` : タッチしている X 座標
+- `y` : タッチしている Y 座標
+
+NOTES:
+
+- vgssdk-pico は本体がマルチタッチに対応していてもシングルタッチの状態のみ取得でき、マルチタッチ中は最も優先度が高いタッチ状態のみを取得するものとします
+- PC (macOS, Linux) では マウス を用いてタッチを行うものとして左クリックと右クリックを区別しないものとします
+
 ## License
 
 [MIT](LICENSE.txt)

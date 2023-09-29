@@ -299,6 +299,13 @@ int main()
                 SDL_DestroyWindow(window);
                 SDL_Quit();
                 break;
+            } else if (event.type == SDL_MOUSEBUTTONDOWN) {
+                vgs.io.touch.on = true;
+                SDL_GetMouseState(&vgs.io.touch.x, &vgs.io.touch.y);
+            } else if (event.type == SDL_MOUSEBUTTONUP) {
+                vgs.io.touch.on = false;
+            } else {
+                SDL_GetMouseState(&vgs.io.touch.x, &vgs.io.touch.y);
             }
         }
         SDL_UpdateWindowSurface(window);
