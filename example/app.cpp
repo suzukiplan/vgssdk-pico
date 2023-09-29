@@ -20,9 +20,9 @@ extern "C" void vgs_loop()
 {
     static int tx;
     static int ty;
-    vgs.gfx.pixel(rand() % vgs.getDisplayWidth(), rand() % vgs.getDisplayHeight(), rand() & 0xFFFF);
-    vgs.gfx.line(rand() % vgs.getDisplayWidth(), rand() % vgs.getDisplayHeight(), rand() % vgs.getDisplayWidth(), rand() % vgs.getDisplayHeight(), rand() & 0xFFFF);
-    vgs.gfx.image(rand() % vgs.getDisplayWidth() - 8, rand() % vgs.getDisplayHeight() - 8, 16, 16, (unsigned short*)imageTestData);
+    vgs.gfx.pixel(rand() % vgs.gfx.getWidth(), rand() % vgs.gfx.getHeight(), rand() & 0xFFFF);
+    vgs.gfx.line(rand() % vgs.gfx.getWidth(), rand() % vgs.gfx.getHeight(), rand() % vgs.gfx.getWidth(), rand() % vgs.gfx.getHeight(), rand() & 0xFFFF);
+    vgs.gfx.image(rand() % vgs.gfx.getWidth() - 8, rand() % vgs.gfx.getHeight() - 8, 16, 16, (unsigned short*)imageTestData);
     if (vgs.io.touch.on) {
         if (tx != vgs.io.touch.x || ty != vgs.io.touch.y) {
             tx = vgs.io.touch.x;

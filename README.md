@@ -79,28 +79,6 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 - `vgs.bgm` ... [VGS::BGM class](#vgsbgm-class) の インスタンス
 - `vgs.io` ... [VGS::IO class](#vgsio-class) の インスタンス
 
-### `VGS::getDisplayWidth method`
-
-```c++
-int result = vgs.getDisplayWidth();
-```
-
-- 画面（LCD）の横幅を取得します
-- 想定戻り値
-  - 240px (Portrait/3.2)
-  - 320px (Landscape/3.2)
-
-### `VGS::getDisplayHeight method`
-
-```c++
-int result = vgs.getDisplayHeight();
-```
-
-- 画面（LCD）の縦幅を取得します
-- 想定戻り値
-  - 240px (Landscape/3.2)
-  - 320px (Portrait/3.2)
-
 ## `VGS::GFX class`
 
 ### Constructor
@@ -118,6 +96,29 @@ VGS::GFX(int width, int height);
 物理ディスプレイ向けのコンストラクタを用いる唯一のインスタンスは `vgs.gfx` で、アプリケーションでは仮想ディスプレイ向けのコンストラクタのみ使用するものとします。仮想ディスプレイは描画内容を[vgs.gfx.push](#vgsgfxpush-method)で物理ディスプレイへ区系転送することができます。
 
 > なお、仮想ディスプレイには width × height × 2 バイト の RAM 領域を専有するため、最小限度の利用に留めることを強く推奨します。例えば、240x320 の画面領域を確保するには 150KB の RAM が必要になり、Raspberry Pi Pico の全メモリの半分以上を専有することになります。vgssdk-pico の場合は BGM の再生に 128 KB 程度の RAM を専有するため、そのサイズの仮想ディスプレイを確保することはそもそも不可能です。
+
+### `VGS::GFX::getWidth method`
+
+```c++
+int getWidth();
+```
+
+- 画面の横幅を取得します
+- 物理ディスプレイの場合の想定戻り値は次の通りです
+  - 240px (Portrait/3.2)
+  - 320px (Landscape/3.2)
+
+### `VGS::GFX::getHeight method`
+
+```c++
+int getHeight();
+```
+
+- 画面の縦幅を取得します
+- 物理ディスプレイの場合の想定戻り値は次の通りです
+  - 240px (Landscape/3.2)
+  - 320px (Portrait/3.2)
+
 
 ### `VGS::GFX::clear method`
 

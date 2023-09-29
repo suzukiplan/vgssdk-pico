@@ -7,10 +7,13 @@
 #include <string.h>
 #include <unistd.h>
 
+#define VGS_DISPLAY_WIDTH 240
+#define VGS_DISPLAY_HEIGHT 320
+
 #define abs_(x) (x >= 0 ? (x) : -(x))
 #define sgn_(x) (x >= 0 ? (1) : (-1))
 
-VGS vgs(240, 320);
+VGS vgs;
 static SDL_Surface* windowSurface;
 
 static void log(const char* format, ...)
@@ -67,67 +70,102 @@ static inline unsigned short flip(unsigned short value)
 
 VGS::GFX::GFX()
 {
-    memset(&this->display, 0, sizeof(this->display));
+    log("create GFX for Physical Display (%d, %d)", VGS_DISPLAY_WIDTH, VGS_DISPLAY_HEIGHT);
+    memset(&this->vDisplay, 0, sizeof(this->vDisplay));
     this->clearViewport();
 }
 
 VGS::GFX::GFX(int width, int height)
 {
-    memset(&this->viewport, 0, sizeof(this->viewport));
-    this->display.width = width;
-    this->display.height = height;
-    this->display.buffer = (unsigned short*)malloc(width * height * 2);
+    log("create GFX for Virtual Display (%d, %d)", width, height);
+    this->vDisplay.width = width;
+    this->vDisplay.height = height;
+    this->vDisplay.buffer = (unsigned short*)malloc(width * height * 2);
+    this->clearViewport();
 }
 
 VGS::GFX::~GFX()
 {
-    if (this->display.buffer) {
-        free(this->display.buffer);
+    if (this->vDisplay.buffer) {
+        free(this->vDisplay.buffer);
+    }
+}
+
+int VGS::GFX::getWidth()
+{
+    if (this->isVirtual()) {
+        return this->vDisplay.width;
+    } else {
+        return VGS_DISPLAY_WIDTH;
+    }
+}
+
+int VGS::GFX::getHeight()
+{
+    if (this->isVirtual()) {
+        return this->vDisplay.height;
+    } else {
+        return VGS_DISPLAY_HEIGHT;
     }
 }
 
 void VGS::GFX::setViewport(int x, int y, int width, int height)
 {
-    this->viewport.enabled = true;
     this->viewport.x = x;
     this->viewport.y = y;
     this->viewport.width = width;
     this->viewport.height = height;
 }
 
-void VGS::GFX::clear(unsigned short color)
+void VGS::GFX::clearViewport()
 {
-    auto color32 = color16to32(color);
-    auto display = (unsigned int*)windowSurface->pixels;
-    for (int y = 0; y < windowSurface->h; y++) {
-        for (int x = 0; x < windowSurface->w; x++) {
-            display[x] = color32;
-        }
-        display += windowSurface->pitch / windowSurface->format->BytesPerPixel;
+    this->viewport.x = 0;
+    this->viewport.y = 0;
+    if (this->isVirtual()) {
+        this->viewport.width = this->vDisplay.width;
+        this->viewport.height = this->vDisplay.height;
+    } else {
+        this->viewport.width = VGS_DISPLAY_WIDTH;
+        this->viewport.height = VGS_DISPLAY_HEIGHT;
     }
 }
 
-void VGS::GFX::clearViewport()
+void VGS::GFX::clear(unsigned short color)
 {
-    memset(&this->viewport, 0, sizeof(this->viewport));
+    if (this->isVirtual()) {
+        int ptr = 0;
+        for (int y = 0; y < this->vDisplay.height; y++) {
+            for (int x = 0; x < this->vDisplay.width; x++) {
+                this->vDisplay.buffer[ptr++] = color;
+            }
+        }
+    } else {
+        auto color32 = color16to32(color);
+        auto display = (unsigned int*)windowSurface->pixels;
+        for (int y = 0; y < windowSurface->h; y++) {
+            for (int x = 0; x < windowSurface->w; x++) {
+                display[x] = color32;
+            }
+            display += windowSurface->pitch / windowSurface->format->BytesPerPixel;
+        }
+    }
 }
 
 void VGS::GFX::pixel(int x, int y, unsigned short color)
 {
-    if (this->viewport.enabled) {
-        if (x < 0 || y < 0 || this->viewport.width <= x || this->viewport.height <= y) {
-            return;
-        }
-        x += this->viewport.x;
-        y += this->viewport.y;
-    }
-    if (x < 0 || y < 0 || vgs.getDisplayWidth() <= x || vgs.getDisplayHeight() <= y) {
+    x += this->viewport.x;
+    y += this->viewport.y;
+    if (x < 0 || y < 0 || this->viewport.width <= x || this->viewport.height <= y) {
         return;
     }
-    auto display = (unsigned int*)windowSurface->pixels;
-    display += y * windowSurface->pitch / windowSurface->format->BytesPerPixel;
-    display += x;
-    *display = color16to32(color);
+    if (this->isVirtual()) {
+        this->vDisplay.buffer[y * this->vDisplay.width + x] = color;
+    } else {
+        auto display = (unsigned int*)windowSurface->pixels;
+        display += y * windowSurface->pitch / windowSurface->format->BytesPerPixel;
+        display += x;
+        *display = color16to32(color);
+    }
 }
 
 void VGS::GFX::lineV(int x1, int y1, int y2, unsigned short color)
@@ -364,16 +402,13 @@ unsigned int VGS::BGM::getDurationTime()
     return ((VGSDecoder*)this->context)->getDurationTime();
 }
 
-VGS::VGS(int displayWidth, int displayHeight)
+VGS::VGS()
 {
     this->halt = false;
-    this->displayWidth = displayWidth;
-    this->displayHeight = displayHeight;
 }
 
 VGS::~VGS()
 {
-    SDL_Quit();
 }
 
 int main()
@@ -414,8 +449,8 @@ int main()
         "VGS for SDL2",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        vgs.getDisplayWidth(),
-        vgs.getDisplayHeight(),
+        VGS_DISPLAY_WIDTH,
+        VGS_DISPLAY_HEIGHT,
         SDL_WINDOW_OPENGL);
 
     log("Get SDL window surface");
@@ -469,5 +504,6 @@ int main()
     vgs.bgm.pause();
     SDL_CloseAudioDevice(bgmAudioDeviceId);
     bgmAudioDeviceId = 0;
+    SDL_Quit();
     return 0;
 }

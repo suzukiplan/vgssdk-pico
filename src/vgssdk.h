@@ -13,20 +13,23 @@ class VGS
             unsigned short* buffer;
             int width;
             int height;
-        } display;
+        } vDisplay;
 
         struct Viewport {
-            bool enabled;
             int x;
             int y;
             int width;
             int height;
         } viewport;
 
+        inline bool isVirtual() { return nullptr != this->vDisplay.buffer; }
+
       public:
         GFX();
         GFX(int width, int height);
         ~GFX();
+        int getWidth();
+        int getHeight();
         void clear(unsigned short color = 0);
         void setViewport(int x, int y, int width, int height);
         void clearViewport();
@@ -96,17 +99,11 @@ class VGS
 
     bool halt;
 
-    VGS(int displayWidth, int displayHeight);
+    VGS();
     ~VGS();
     VGS::GFX gfx;
     VGS::BGM bgm;
     VGS::IO io;
-    inline int getDisplayWidth() { return this->displayWidth; }
-    inline int getDisplayHeight() { return this->displayHeight; }
-
-  private:
-    int displayWidth;
-    int displayHeight;
 };
 
 // Implement on the app side (only once at startup)
