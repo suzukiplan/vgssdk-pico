@@ -56,10 +56,10 @@ class VGS
       public:
         BGM();
         ~BGM();
-        void* getContext() { return this->context; }
+        inline void* getContext() { return this->context; }
         void pause();
         void resume();
-        bool isPaused() { return this->paused; }
+        inline bool isPaused() { return this->paused; }
         void load(const void* buffer, size_t size);
         int getMasterVolume();
         void setMasterVolume(int masterVolume);
