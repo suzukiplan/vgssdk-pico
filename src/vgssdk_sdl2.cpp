@@ -377,7 +377,7 @@ int main()
     SDL_AudioSpec obtained;
     desired.freq = 22050;
     desired.format = AUDIO_S16LSB;
-    desired.channels = 0;
+    desired.channels = 1;
     desired.samples = 2048;
     desired.callback = bgmCallback;
     desired.userdata = &vgs.bgm;
@@ -386,6 +386,10 @@ int main()
         log(" ... SDL_OpenAudioDevice failed: %s", SDL_GetError());
         exit(-1);
     }
+    log("- obtained.freq = %d", obtained.freq);
+    log("- obtained.format = %X", obtained.format);
+    log("- obtained.channels = %d", obtained.channels);
+    log("- obtained.samples = %d", obtained.samples);
     SDL_PauseAudioDevice(bgmAudioDeviceId, 0);
 
     log("create SDL window");

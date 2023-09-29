@@ -3,6 +3,7 @@
 #include <time.h>
 
 extern VGS vgs;
+extern const unsigned char bgmTestData[2229];
 
 extern "C" void vgs_setup()
 {
@@ -10,6 +11,7 @@ extern "C" void vgs_setup()
     vgs.gfx.clear(0x001F);
     vgs.gfx.box(8, 8, 240 - 16, 32, 0x07C0);
     vgs.gfx.boxf(8, 48, 240 - 16, 32, 0xF800);
+    vgs.bgm.load(bgmTestData, sizeof(bgmTestData));
     return;
 }
 
