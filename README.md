@@ -265,10 +265,10 @@ void image(int x, int y, int width, int height, unsigned short* buffer);
 ### `VGS::GFX::push method`
 
 ```c++
-void push(int x, int y, GFX* gfx);
+void push(int x, int y);
 ```
 
-仮想ディスプレイを指定座標 (x, y) に描画します
+仮想ディスプレイの内容を物理ディスプレイの指定座標 (x, y) に描画します
 
 ## `VGS::BGM class`
 

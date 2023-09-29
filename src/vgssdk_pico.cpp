@@ -25,35 +25,14 @@
 VGS vgs;
 static TFT_eSPI tft(VGS_DISPLAY_WIDTH, VGS_DISPLAY_HEIGHT);
 static I2S i2s(OUTPUT);
+static semaphore_t vgsSemaphore;
+static bool bgmLoaded = false;
+
+inline void vgsLock() { sem_acquire_blocking(&vgsSemaphore); }
+inline void vgsUnlock() { sem_release(&vgsSemaphore); }
 
 VGS::GFX::GFX()
 {
-    pinMode(TFT_BL, OUTPUT);
-    digitalWrite(TFT_BL, HIGH);
-    tft.init();
-
-    // ディスプレイの向きを初期化
-#ifdef REVERSE_SCREEN
-    tft.setRotation(2);
-    uint16_t touch[] = {
-        300,
-        3600,
-        300,
-        3600,
-        0b010};
-    tft.setTouch(touch);
-#else
-    tft.setRotation(0);
-    uint16_t touch[] = {
-        300,
-        3600,
-        300,
-        3600,
-        0b100};
-    tft.setTouch(touch);
-#endif
-
-    tft.fillScreen(0);
 }
 
 VGS::GFX::GFX(int width, int height)
@@ -61,7 +40,7 @@ VGS::GFX::GFX(int width, int height)
     this->counter = 0;
     this->vDisplay.width = width;
     this->vDisplay.height = height;
-    this->vDisplay.buffer = (unsigned short*)new TFT_eSprite(tft);
+    this->vDisplay.buffer = (unsigned short*)new TFT_eSprite(&tft);
 }
 
 VGS::GFX::~GFX()
@@ -201,7 +180,7 @@ void VGS::GFX::image(int x, int y, int width, int height, unsigned short* buffer
     }
 }
 
-void VGS::GFX::push(int x, int y, GFX* gfx)
+void VGS::GFX::push(int x, int y)
 {
     if (this->isVirtual()) {
         ((TFT_eSprite*)this->vDisplay.buffer)->pushSprite(x, y);
@@ -307,7 +286,7 @@ VGS::~VGS()
 
 void VGS::delay(int ms)
 {
-    usleep(ms * 1000);
+    delay(ms);
 }
 
 void setup1()
@@ -327,14 +306,14 @@ void loop1()
     if (0 == index) {
         page = 1 - page;
     } else if (VGS_BUFFER_SIZE / 2 == index) {
-        vgsLock();
         auto context = (VGSDecoder*)vgs.bgm.getContext();
-        if (context && !vgs.bgm.isPaused()) {
+        if (context && bgmLoaded && !vgs.bgm.isPaused()) {
+            vgsLock();
             context->execute(buffer[1 - page], VGS_BUFFER_SIZE * 2);
+            vgsUnlock();
         } else {
             memset(buffer[1 - page], 0, VGS_BUFFER_SIZE * 2);
         }
-        vgsUnlock();
     }
     i2s.write16(buffer[page][index], buffer[page][index]);
     index = (index + 1) % VGS_BUFFER_SIZE;
@@ -342,9 +321,41 @@ void loop1()
 
 void setup()
 {
+    pinMode(25, OUTPUT);
+    digitalWrite(25, HIGH);
+
+    sem_init(&vgsSemaphore, 1, 1);
+    pinMode(TFT_BL, OUTPUT);
+    digitalWrite(TFT_BL, HIGH);
+    tft.init();
+
+    // ディスプレイの向きを初期化
+#ifdef REVERSE_SCREEN
+    tft.setRotation(2);
+    uint16_t touch[] = {
+        300,
+        3600,
+        300,
+        3600,
+        0b010};
+    tft.setTouch(touch);
+#else
+    tft.setRotation(0);
+    uint16_t touch[] = {
+        300,
+        3600,
+        300,
+        3600,
+        0b100};
+    tft.setTouch(touch);
+#endif
+    tft.fillScreen(0);
     vgs.bgm.setMasterVolume(16);
     vgs_setup();
-}
+
+    delay(200);
+    digitalWrite(25, LOW);
+ }
 
 void loop()
 {
@@ -354,7 +365,12 @@ void loop()
     while (!vgs.halt) {
         loopCount++;
         auto start = std::chrono::system_clock::now();
-        vgsio.touch.on = tft.getTouch(&vgs.io.touch.x, &vgs.io.touch.y, 20);
+        uint16_t tx, ty;
+        vgs.io.touch.on = tft.getTouch(&tx, &ty);
+        if (vgs.io.touch.on) {
+            vgs.io.touch.x = tx;
+            vgs.io.touch.y = ty;
+        }
         if (vgs.is60FpsMode()) {
             vgs.gfx.startWrite();
         }

@@ -44,7 +44,7 @@ class VGS
         void box(int x, int y, int width, int height, unsigned short color);
         void boxf(int x, int y, int width, int height, unsigned short color);
         void image(int x, int y, int width, int height, unsigned short* buffer);
-        void push(int x, int y, GFX* gfx);
+        void push(int x, int y);
     };
 
     class BGM
