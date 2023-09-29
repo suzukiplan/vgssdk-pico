@@ -2,7 +2,6 @@
 #include "vgsdecv.hpp"
 #include "vgssdk.h"
 #include <chrono>
-#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
