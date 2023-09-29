@@ -4,6 +4,7 @@ all:
 format: 
 	make execute-format FILENAME=./example/app.cpp
 	make execute-format FILENAME=./src/vgssdk_sdl2.cpp
+	make execute-format FILENAME=./src/vgssdk_pico.cpp
 	make execute-format FILENAME=./src/vgssdk.h
 	make execute-format FILENAME=./src/vgsdecv.hpp
         
