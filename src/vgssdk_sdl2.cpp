@@ -36,7 +36,7 @@ static inline unsigned int bit5to8(unsigned char bit5)
     return result;
 }
 
-static inline unsigned char bit6to8(unsigned char bit6)
+static inline unsigned int bit6to8(unsigned char bit6)
 {
     unsigned char bit8 = bit6 | ((bit6 & 0b11000000) >> 6);
     unsigned int result = bit8;
@@ -52,10 +52,17 @@ static inline unsigned char bit6to8(unsigned char bit6)
 static inline unsigned int color16to32(unsigned short rgb565)
 {
     unsigned int color32 = bit5to8((rgb565 & 0b1111100000000000) >> 8) & windowSurface->format->Rmask;
-    color32 |= bit5to8((rgb565 & 0b0000011111100000) >> 2) & windowSurface->format->Gmask;
+    color32 |= bit6to8((rgb565 & 0b0000011111100000) >> 3) & windowSurface->format->Gmask;
     color32 |= bit5to8((rgb565 & 0b0000000000011111) << 3) & windowSurface->format->Bmask;
     color32 |= windowSurface->format->Amask;
     return color32;
+}
+
+static inline unsigned short flip(unsigned short value)
+{
+    unsigned short result = (value & 0x00FF) << 8;
+    result |= (value & 0xFF00) >> 8;
+    return result;
 }
 
 VGS::GFX::GFX()
@@ -233,6 +240,16 @@ void VGS::GFX::boxf(int x, int y, int width, int height, unsigned short color)
         int y2 = y + height;
         for (; y < y2; y++) {
             this->lineH(x, y, x2, color);
+        }
+    }
+}
+
+void VGS::GFX::image(int x, int y, int width, int height, unsigned short* buffer)
+{
+    int ptr = 0;
+    for (int yy = 0; yy < height; yy++) {
+        for (int xx = 0; xx < width; xx++) {
+            this->pixel(x + xx, y + yy, flip(buffer[ptr++]));
         }
     }
 }
