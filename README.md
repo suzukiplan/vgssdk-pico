@@ -62,7 +62,7 @@ make
 
 ### [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)
 
-TODO
+[コチラ](./pico)を参照
 
 ## API outline
 
