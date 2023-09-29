@@ -182,3 +182,7 @@ void push(int x, int y, GFX* gfx);
 ## `VGS::BGM class`
 
 ## `VGS::IO class`
+
+## License
+
+[MIT](LICENSE.txt)
