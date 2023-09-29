@@ -43,9 +43,28 @@ make
 ./app
 ```
 
-### Linux
+### Linux (Ubuntu)
 
-TODO
+```bash
+# SDL2 をインストール
+sudo apt-get install libsdl2-dev
+
+# ALSA をインストール
+sudo apt-get install libasound2
+sudo apt-get install libasound2-dev
+
+# リポジトリを取得
+git clone https://github.com/suzukiplan/vgssdk-pico
+
+# リポジトリのディレクトリへ移動
+cd vgssdk-pico
+
+# ビルド (macOS用)
+make
+
+# 実行
+./app
+```
 
 ### [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)
 
