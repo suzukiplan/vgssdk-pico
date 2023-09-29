@@ -109,6 +109,11 @@ class VGS
     VGS::BGM bgm;
     VGS::IO io;
     void delay(int ms);
+    inline void set60FpsMode(bool on) { this->is60Fps = on; }
+    inline bool is60FpsMode() { return this->is60Fps; }
+
+  private:
+    bool is60Fps;
 };
 
 // Implement on the app side (only once at startup)

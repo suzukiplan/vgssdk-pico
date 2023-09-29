@@ -1,6 +1,7 @@
 #include "SDL.h"
 #include "vgsdecv.hpp"
 #include "vgssdk.h"
+#include <chrono>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -434,6 +435,7 @@ unsigned int VGS::BGM::getDurationTime()
 VGS::VGS()
 {
     this->halt = false;
+    this->is60Fps = false;
 }
 
 VGS::~VGS()
@@ -510,7 +512,15 @@ int main()
 
     log("Continue to execute vgs_loop while no stop signal is detected...");
     SDL_Event event;
+    unsigned int loopCount = 0;
+    const int wait60fps[3] = {17, 17, 16};
+
     while (!vgs.halt) {
+        loopCount++;
+        auto start = std::chrono::system_clock::now();
+        if (vgs.is60FpsMode()) {
+            vgs.gfx.startWrite();
+        }
         vgs_loop();
         if (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -524,6 +534,15 @@ int main()
                 vgs.io.touch.on = false;
             } else {
                 SDL_GetMouseState(&vgs.io.touch.x, &vgs.io.touch.y);
+            }
+        }
+        if (vgs.is60FpsMode()) {
+            vgs.gfx.endWrite();
+            std::chrono::duration<double> diff = std::chrono::system_clock::now() - start;
+            int ms = (int)(diff.count() * 1000);
+            int wait = wait60fps[loopCount % 3];
+            if (ms < wait) {
+                usleep((wait - ms) * 1000);
             }
         }
     }

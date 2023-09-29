@@ -106,6 +106,16 @@ void delay(int ms);
 
 指定した時間（ミリ秒）待機する
 
+### `VGS::set60FpsMode method`
+
+```c++
+void set60FpsMode(bool on);
+```
+
+- `on`:
+  - `true`: `vgs_loop` を 60fps の間隔で呼び出す
+  - `false`: `vgs_loop` をノーウェイトで呼び出す
+
 ## `VGS::GFX class`
 
 ### Constructor
