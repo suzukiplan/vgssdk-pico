@@ -30,7 +30,7 @@ git clone https://github.com/suzukiplan/vgssdk-pico
 # リポジトリのディレクトリへ移動
 cd vgssdk-pico
 
-# ビルド (macOS用)
+# ビルド
 make
 
 # 実行
@@ -53,7 +53,7 @@ git clone https://github.com/suzukiplan/vgssdk-pico
 # リポジトリのディレクトリへ移動
 cd vgssdk-pico
 
-# ビルド (macOS用)
+# ビルド
 make
 
 # 実行
