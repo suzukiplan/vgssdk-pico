@@ -181,6 +181,133 @@ void push(int x, int y, GFX* gfx);
 
 ## `VGS::BGM class`
 
+### `VGS::BGM::pause method`
+
+```c++
+void pause();
+```
+
+BGM の再生をポーズ
+
+### `VGS::BGM::resume method`
+
+```c++
+void resume();
+```
+
+BGM の再生を再開
+
+### `VGS::BGM::isPaused method`
+
+```c++
+bool isPaused();
+```
+
+BGM の再生がポーズ中かチェック
+
+### `VGS::BGM::load method`
+
+```c++
+void load(const void* buffer, size_t size);
+```
+
+LZ4 で圧縮された VGS の可変方式 BGM データファイルを読み込む
+
+> 【参考】対応データ作成方法
+> 
+> 1. [vgs-mml-compier](https://github.com/suzukiplan/vgs-mml-compiler) で MML をコンパイル
+> 2. [vgsftv](https://github.com/suzukiplan/tohovgs-pico/tree/master/tools/vgsftv) で可変化方式にコンバート
+> 3. [vgslz4](https://github.com/suzukiplan/tohovgs-pico/tree/master/tools/vgslz4) で LZ4 圧縮
+
+### `VGS::BGM::getMasterVolume method`
+
+```c++
+int getMasterVolume();
+```
+
+マスターボリュームを取得する
+
+### `VGS::BGM::setMasterVolume method`
+
+```c++
+void setMasterVolume(int masterVolume);
+```
+
+マスターボリューム（0〜100）を設定する
+
+### `VGS::BGM::fadeout`
+
+```c++
+void fadeout();
+```
+
+再生中の BGM をフェードアウトする
+
+### `VGS::BGM::isPlayEnd`
+
+```c++
+bool isPlayEnd();
+```
+
+BGM の再生が終了しているかチェック
+
+### `VGS::BGM::getLoopCount`
+
+```c++
+int getLoopCount();
+```
+
+現在のループ回数を取得
+
+### `VGS::BGM::getTone`
+
+```c++
+unsigned char getTone(int cn);
+```
+
+チャンネル（0〜5）の音色番号を取得
+
+- 0: サイン波
+- 1: ノコギリ波
+- 2: 矩形波
+- 3: ノイズ
+
+### `VGS::BGM::getKey`
+
+```c++
+unsigned char getKey(int cn);
+```
+
+- チャンネル（0〜5）の音程を取得
+- 発生中の場合 0 〜 84 の範囲の整数を返す
+  - 0: オクターブ 0 の A
+  - 84: オクターブ 7 の A
+- 発音中ではない場合は 0xFF を返す
+
+### `VGS::BGM::getLengthTime`
+
+```c++
+unsigned int getLengthTime();
+```
+
+楽曲の長さ（22050 が 1秒）を返す
+
+### `VGS::BGM::`
+
+```c++
+unsigned int getLoopTime();
+```
+
+ループ起点の時間（22050 が 1秒）を返す
+
+### `VGS::BGM::`
+
+```c++
+unsigned int getDurationTime();
+```
+
+現在の再生時間（22050 が 1秒）を返す
+
 ## `VGS::IO class`
 
 [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)がサポートする入出力機器は次の通りです:
