@@ -40,7 +40,6 @@ VGS::GFX::GFX(int width, int height)
     this->counter = 0;
     this->vDisplay.width = width;
     this->vDisplay.height = height;
-
     auto sprite = new TFT_eSprite(&tft);
     sprite->createSprite(width, height);
     sprite->setColorDepth(16);

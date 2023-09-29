@@ -1,4 +1,4 @@
-# [WIP] Video Game System SDK - Pico
+# Video Game System SDK - Pico
 
 ## Description
 
@@ -13,12 +13,6 @@ vgssdk-pico を用いて開発したアプリは、OS 依存の API を使用し
 vgssdk-pico を用いることで、パソコン（Linux or macOS）のみで効率的に[東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)向けアプリケーションの開発ができるようになります。
 
 > スマホアプリを iOS のシミュレータ や Android のエミュレータで開発するようなイメージのものと思っていただければ大丈夫です。
-
-## WIP status
-
-- [x] SDL2 で macOS 対応
-- [x] SDL2 で Linux 対応
-- [ ] [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) 対応
 
 ## How to build example app
 
