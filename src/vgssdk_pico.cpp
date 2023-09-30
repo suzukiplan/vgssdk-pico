@@ -23,6 +23,7 @@
 #define sgn_(x) (x >= 0 ? (1) : (-1))
 
 VGS vgs;
+static VGSDecoder vgsdec;
 static TFT_eSPI tft(VGS_DISPLAY_WIDTH, VGS_DISPLAY_HEIGHT);
 static I2S i2s(OUTPUT);
 static semaphore_t vgsSemaphore;
@@ -194,89 +195,30 @@ void VGS::GFX::push(int x, int y)
 
 VGS::BGM::BGM()
 {
-    this->context = new VGSDecoder();
+    this->context = &vgsdec;
     bgmLoaded = false;
 }
 
-VGS::BGM::~BGM()
-{
-    delete (VGSDecoder*)this->context;
-}
-
-void VGS::BGM::pause()
-{
-    this->paused = true;
-}
-
-void VGS::BGM::resume()
-{
-    this->paused = false;
-}
+VGS::BGM::~BGM() {}
+void VGS::BGM::pause() { this->paused = true; }
+void VGS::BGM::resume() { this->paused = false; }
+int VGS::BGM::getMasterVolume() { return vgsdec.getMasterVolume(); }
+void VGS::BGM::setMasterVolume(int masterVolume) { vgsdec.setMasterVolume(masterVolume); }
+void VGS::BGM::fadeout() { vgsdec.fadeout(); }
+bool VGS::BGM::isPlayEnd() { return vgsdec.isPlayEnd(); }
+int VGS::BGM::getLoopCount() { return vgsdec.getLoopCount(); }
+unsigned char VGS::BGM::getTone(int cn) { return vgsdec.getTone(cn & 0xFF); }
+unsigned char VGS::BGM::getKey(int cn) { return vgsdec.getKey(cn & 0xFF); }
+unsigned int VGS::BGM::getLengthTime() { return vgsdec.getLengthTime(); }
+unsigned int VGS::BGM::getLoopTime() { return vgsdec.getLoopTime(); }
+unsigned int VGS::BGM::getDurationTime() { return vgsdec.getDurationTime(); }
 
 void VGS::BGM::load(const void* buffer, size_t size)
 {
     vgsLock();
-    bgmLoaded = ((VGSDecoder*)this->context)->load(buffer, size);
+    bgmLoaded = vgsdec.load(buffer, size);
     this->resume();
     vgsUnlock();
-}
-
-int VGS::BGM::getMasterVolume()
-{
-    return ((VGSDecoder*)this->context)->getMasterVolume();
-}
-
-void VGS::BGM::setMasterVolume(int masterVolume)
-{
-    ((VGSDecoder*)this->context)->setMasterVolume(masterVolume);
-}
-
-void VGS::BGM::fadeout()
-{
-    ((VGSDecoder*)this->context)->fadeout();
-}
-
-bool VGS::BGM::isPlayEnd()
-{
-    return ((VGSDecoder*)this->context)->isPlayEnd();
-}
-
-int VGS::BGM::getLoopCount()
-{
-    return ((VGSDecoder*)this->context)->getLoopCount();
-}
-
-unsigned char VGS::BGM::getTone(int cn)
-{
-    if (0 <= cn && cn < 6) {
-        return ((VGSDecoder*)this->context)->getTone(cn & 0xFF);
-    } else {
-        return 0xFF;
-    }
-}
-
-unsigned char VGS::BGM::getKey(int cn)
-{
-    if (0 <= cn && cn < 6) {
-        return ((VGSDecoder*)this->context)->getKey(cn & 0xFF);
-    } else {
-        return 0xFF;
-    }
-}
-
-unsigned int VGS::BGM::getLengthTime()
-{
-    return ((VGSDecoder*)this->context)->getLengthTime();
-}
-
-unsigned int VGS::BGM::getLoopTime()
-{
-    return ((VGSDecoder*)this->context)->getLoopTime();
-}
-
-unsigned int VGS::BGM::getDurationTime()
-{
-    return ((VGSDecoder*)this->context)->getDurationTime();
 }
 
 VGS::VGS()
@@ -314,10 +256,9 @@ void loop1()
     if (0 == index) {
         page = 1 - page;
     } else if (VGS_BUFFER_SIZE / 2 == index) {
-        auto context = (VGSDecoder*)vgs.bgm.getContext();
-        if (context && bgmLoaded && !vgs.bgm.isPaused()) {
+        if (bgmLoaded && !vgs.bgm.isPaused()) {
             vgsLock();
-            context->execute(buffer[1 - page], VGS_BUFFER_SIZE * 2);
+            vgsdec.execute(buffer[1 - page], VGS_BUFFER_SIZE * 2);
             vgsUnlock();
         } else {
             memset(buffer[1 - page], 0, VGS_BUFFER_SIZE * 2);
