@@ -330,7 +330,7 @@ void loop1()
 void setup()
 {
     pinMode(25, OUTPUT);
-    digitalWrite(25, HIGH);
+    vgs.led(true);
 
     i2s.setBCLK(UDA1334A_PIN_BCLK);
     i2s.setDATA(UDA1334A_PIN_DIN);
@@ -342,6 +342,7 @@ void setup()
     pinMode(TFT_BL, OUTPUT);
     digitalWrite(TFT_BL, HIGH);
     tft.init();
+    tft.startWrite();
 
     // ディスプレイの向きを初期化
 #ifdef REVERSE_SCREEN
@@ -363,12 +364,13 @@ void setup()
         0b100};
     tft.setTouch(touch);
 #endif
+    tft.endWrite();
 
     vgs.bgm.setMasterVolume(16);
     vgs_setup();
 
     delay(200);
-    digitalWrite(25, LOW);
+    vgs.led(false);
     cpu0SetupEnd = true;
 }
 
