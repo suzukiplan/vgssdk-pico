@@ -26,6 +26,7 @@ VGS vgs;
 static TFT_eSPI tft(VGS_DISPLAY_WIDTH, VGS_DISPLAY_HEIGHT);
 static I2S i2s(OUTPUT);
 static semaphore_t vgsSemaphore;
+static bool cpu0SetupEnd = false;
 static bool bgmLoaded = false;
 
 inline void vgsLock() { sem_acquire_blocking(&vgsSemaphore); }
@@ -300,11 +301,9 @@ void VGS::led(bool on)
 
 void setup1()
 {
-    i2s.setBCLK(UDA1334A_PIN_BCLK);
-    i2s.setDATA(UDA1334A_PIN_DIN);
-    i2s.setBitsPerSample(16);
-    i2s.setBuffers(16, 128, 0); // 2048 bytes
-    i2s.begin(22050);
+    while (!cpu0SetupEnd) {
+        delay(1);
+    }
 }
 
 void loop1()
@@ -332,6 +331,12 @@ void setup()
 {
     pinMode(25, OUTPUT);
     digitalWrite(25, HIGH);
+
+    i2s.setBCLK(UDA1334A_PIN_BCLK);
+    i2s.setDATA(UDA1334A_PIN_DIN);
+    i2s.setBitsPerSample(16);
+    i2s.setBuffers(16, 128, 0); // 2048 bytes
+    i2s.begin(22050);
 
     sem_init(&vgsSemaphore, 1, 1);
     pinMode(TFT_BL, OUTPUT);
@@ -364,6 +369,7 @@ void setup()
 
     delay(200);
     digitalWrite(25, LOW);
+    cpu0SetupEnd = true;
 }
 
 void loop()
