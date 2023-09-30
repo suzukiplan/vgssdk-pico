@@ -1,7 +1,9 @@
-/**
- * VGS Tone Data
- * License under MIT: https://github.com/suzukiplan/vgssdk-pico/blob/master/LICENSE.txt
- * (C)2023, SUZUKI PLAN
+/* (C)2015, SUZUKI PLAN.
+ *----------------------------------------------------------------------------
+ * Description: VGS mk-II SR - Tones
+ *    Platform: Common
+ *      Author: Yoji Suzuki (SUZUKI PLAN)
+ *----------------------------------------------------------------------------
  */
 
 /*

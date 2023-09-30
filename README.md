@@ -100,6 +100,14 @@ void delay(int ms);
 
 指定した時間（ミリ秒）待機する
 
+### `VGS::led method`
+
+```c++
+void led(bool on);
+```
+
+本体 LED の点灯・消灯
+
 ### `VGS::set60FpsMode method`
 
 ```c++
@@ -209,18 +217,18 @@ void pixel(int x, int y, unsigned short color);
 ### `VGS::GFX::lineV method`
 
 ```c++
-void lineV(int x1, int y1, int y2, unsigned short color);
+void lineV(int x1, int y1, int height, unsigned short color);
 ```
 
-指定座標 (x, y) から (x, y2) に指定した色（RGB565形式）の縦線を描画します
+指定座標 (x, y) から指定した高さ（height）と色（RGB565形式）の縦線を描画します
 
 ### `VGS::GFX::lineH method`
 
 ```c++
-void lineH(int x1, int y1, int x2, unsigned short color);
+void lineH(int x1, int y1, int width, unsigned short color);
 ```
 
-指定座標 (x, y) から (x2, y) に指定した色（RGB565形式）の横線を描画します
+指定座標 (x, y) から指定した幅（width）と色（RGB565形式）の横線を描画します
 
 ### `VGS::GFX::line method`
 
@@ -251,7 +259,7 @@ void boxf(int x, int y, int width, int height, unsigned short color);
 ### `VGS::GFX::image method`
 
 ```c++
-void image(int x, int y, int width, int height, unsigned short* buffer);
+void image(int x, int y, int width, int height, const unsigned short* buffer);
 ```
 
 - bitmap 形式のイメージを指定座標 (x, y) に描画します

@@ -84,11 +84,12 @@ VGS::GFX::GFX()
 
 VGS::GFX::GFX(int width, int height)
 {
-    log("create GFX for Virtual Display (%d, %d)", width, height);
+    log("create GFX for Virtual Display (%d, %d) = %dKB", width, height, width * height * 2 / 1024 + (width * height * 2 % 1024 ? 1 : 0));
     this->counter = 0;
     this->vDisplay.width = width;
     this->vDisplay.height = height;
     this->vDisplay.buffer = (unsigned short*)malloc(width * height * 2);
+    memset(this->vDisplay.buffer, 0, width * height * 2);
     this->clearViewport();
 }
 
@@ -176,14 +177,23 @@ void VGS::GFX::clear(unsigned short color)
 
 void VGS::GFX::pixel(int x, int y, unsigned short color)
 {
+    if (this->viewport.width <= x || this->viewport.height <= y) {
+        return;
+    }
     x += this->viewport.x;
     y += this->viewport.y;
-    if (x < 0 || y < 0 || this->viewport.width <= x || this->viewport.height <= y) {
+    if (x < 0 || y < 0) {
         return;
     }
     if (this->isVirtual()) {
+        if (this->vDisplay.width <= x || this->vDisplay.height <= y) {
+            return;
+        }
         this->vDisplay.buffer[y * this->vDisplay.width + x] = color;
     } else {
+        if (VGS_DISPLAY_WIDTH <= x || VGS_DISPLAY_HEIGHT <= y) {
+            return;
+        }
         auto display = (unsigned int*)windowSurface->pixels;
         display += y * windowSurface->pitch / windowSurface->format->BytesPerPixel;
         display += x;
@@ -191,36 +201,26 @@ void VGS::GFX::pixel(int x, int y, unsigned short color)
     }
 }
 
-void VGS::GFX::lineV(int x1, int y1, int y2, unsigned short color)
+void VGS::GFX::lineV(int x, int y, int height, unsigned short color)
 {
-    if (y2 < y1) {
-        auto w = y2;
-        y2 = y1;
-        y1 = w;
-    }
-    for (; y1 < y2; y1++) {
-        this->pixel(x1, y1, color);
+    for (int i = 0; i < height; i++) {
+        this->pixel(x, y++, color);
     }
 }
 
-void VGS::GFX::lineH(int x1, int y1, int x2, unsigned short color)
+void VGS::GFX::lineH(int x, int y, int width, unsigned short color)
 {
-    if (x2 < x1) {
-        auto w = x2;
-        x2 = x1;
-        x1 = w;
-    }
-    for (; x1 < x2; x1++) {
-        this->pixel(x1, y1, color);
+    for (int i = 0; i < width; i++) {
+        this->pixel(x++, y, color);
     }
 }
 
 void VGS::GFX::line(int x1, int y1, int x2, int y2, unsigned short color)
 {
     if (x1 == x2) {
-        this->lineV(x1, y1, y2, color);
+        this->lineV(x1, y1, abs(y1 - y2) + 1, color);
     } else if (y1 == y2) {
-        this->lineH(x1, y1, x2, color);
+        this->lineH(x1, y1, abs(x1 - x2) + 1, color);
     }
     int ia, ib, ie;
     int w;
@@ -285,27 +285,23 @@ void VGS::GFX::line(int x1, int y1, int x2, int y2, unsigned short color)
 void VGS::GFX::box(int x, int y, int width, int height, unsigned short color)
 {
     if (0 < width && 0 < height) {
-        int x2 = x + width - 1;
-        int y2 = y + height - 1;
-        this->lineH(x, y, x2, color);
-        this->lineH(x, y2, x2, color);
-        this->lineV(x, y, y2, color);
-        this->lineV(x2, y, y2, color);
+        this->lineH(x, y, width, color);
+        this->lineH(x, y + height - 1, width, color);
+        this->lineV(x, y, height, color);
+        this->lineV(x + width - 1, y, height, color);
     }
 }
 
 void VGS::GFX::boxf(int x, int y, int width, int height, unsigned short color)
 {
     if (0 < width && 0 < height) {
-        int x2 = x + width - 1;
-        int y2 = y + height;
-        for (; y < y2; y++) {
-            this->lineH(x, y, x2, color);
+        for (int i = 0; i < height; i++) {
+            this->lineH(x, y++, width, color);
         }
     }
 }
 
-void VGS::GFX::image(int x, int y, int width, int height, unsigned short* buffer)
+void VGS::GFX::image(int x, int y, int width, int height, const unsigned short* buffer)
 {
     int ptr = 0;
     for (int yy = 0; yy < height; yy++) {
@@ -451,6 +447,11 @@ void VGS::delay(int ms)
     usleep(ms * 1000);
 }
 
+void VGS::led(bool on)
+{
+    log("LED: %s", on ? "on" : "off");
+}
+
 int main()
 {
     log("Booting VGS for SDL2.");
@@ -526,11 +527,16 @@ int main()
             vgs.gfx.startWrite();
         }
         vgs_loop();
-        if (SDL_PollEvent(&event)) {
+        bool quit = false;
+        while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
-                SDL_DestroyWindow(window);
-                SDL_Quit();
+                quit = true;
                 break;
+            } else if (event.type == SDL_KEYDOWN) {
+                if (SDLK_q == event.key.keysym.sym) {
+                    quit = true;
+                    break;
+                }
             } else if (event.type == SDL_MOUSEBUTTONDOWN) {
                 vgs.io.touch.on = true;
                 SDL_GetMouseState(&vgs.io.touch.x, &vgs.io.touch.y);
@@ -539,6 +545,9 @@ int main()
             } else {
                 SDL_GetMouseState(&vgs.io.touch.x, &vgs.io.touch.y);
             }
+        }
+        if (quit) {
+            break;
         }
         if (vgs.is60FpsMode()) {
             vgs.gfx.endWrite();
@@ -560,6 +569,7 @@ int main()
     vgs.bgm.pause();
     SDL_CloseAudioDevice(bgmAudioDeviceId);
     bgmAudioDeviceId = 0;
+    SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
 }
