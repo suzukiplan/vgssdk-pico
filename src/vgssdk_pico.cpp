@@ -44,7 +44,7 @@ VGS::GFX::GFX(int width, int height)
     auto sprite = new TFT_eSprite(&tft);
     sprite->createSprite(width, height);
     sprite->setColorDepth(16);
-    this->vDisplay.buffer = (unsigned short*)sprite;
+    this->vDisplay.buffer = sprite;
     this->clearViewport();
 }
 

@@ -88,7 +88,7 @@ VGS::GFX::GFX(int width, int height)
     this->counter = 0;
     this->vDisplay.width = width;
     this->vDisplay.height = height;
-    this->vDisplay.buffer = (unsigned short*)malloc(width * height * 2);
+    this->vDisplay.buffer = malloc(width * height * 2);
     memset(this->vDisplay.buffer, 0, width * height * 2);
     this->clearViewport();
 }
@@ -158,9 +158,10 @@ void VGS::GFX::clear(unsigned short color)
 {
     if (this->isVirtual()) {
         int ptr = 0;
+        auto buffer = this->getVirtualBuffer();
         for (int y = 0; y < this->vDisplay.height; y++) {
             for (int x = 0; x < this->vDisplay.width; x++) {
-                this->vDisplay.buffer[ptr++] = color;
+                buffer[ptr++] = color;
             }
         }
     } else {
@@ -189,7 +190,7 @@ void VGS::GFX::pixel(int x, int y, unsigned short color)
         if (this->vDisplay.width <= x || this->vDisplay.height <= y) {
             return;
         }
-        this->vDisplay.buffer[y * this->vDisplay.width + x] = color;
+        this->getVirtualBuffer()[y * this->vDisplay.width + x] = color;
     } else {
         if (VGS_DISPLAY_WIDTH <= x || VGS_DISPLAY_HEIGHT <= y) {
             return;
