@@ -390,13 +390,11 @@ void VGS::BGM::fadeout()
     ((VGSDecoder*)this->context)->fadeout();
 }
 
-void VGS::BGM::seekTo(int time)
+void VGS::BGM::seekTo(int time, void (*callback)(int percent))
 {
     if (bgmAudioDeviceId) {
         this->pause();
-        SDL_LockAudioDevice(bgmAudioDeviceId);
-        ((VGSDecoder*)this->context)->seekTo(time);
-        SDL_UnlockAudioDevice(bgmAudioDeviceId);
+        ((VGSDecoder*)this->context)->seekTo(time, callback);
         this->resume();
     }
 }

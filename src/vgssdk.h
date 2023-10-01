@@ -69,7 +69,7 @@ class VGS
         int getMasterVolume();
         void setMasterVolume(int masterVolume);
         void fadeout();
-        void seekTo(int time);
+        void seekTo(int time, void (*callback)(int percent));
         bool isPlayEnd();
         int getLoopCount();
         unsigned char getTone(int cn);

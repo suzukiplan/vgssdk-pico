@@ -221,10 +221,10 @@ void VGS::BGM::load(const void* buffer, size_t size)
     vgsUnlock();
 }
 
-void VGS::BGM::seekTo(int time)
+void VGS::BGM::seekTo(int time, void (*callback)(int percent))
 {
     vgsLock();
-    vgsdec.seekTo(time);
+    vgsdec.seekTo(time, callback);
     this->resume();
     vgsUnlock();
 }

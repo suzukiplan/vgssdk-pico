@@ -379,11 +379,18 @@ class VGSDecoder
         }
     }
 
-    void seekTo(int time)
+    void seekTo(int time, void (*callback)(int percent) = nullptr)
     {
+        int progress = 0;
         this->resetContext();
-        while (0 < time && this->ctx.play) {
-            time -= this->execute(nullptr, 256);
+        if (0 < time) {
+            while (progress < time && this->ctx.play) {
+                progress += this->execute(nullptr, 1024);
+                if (callback && 0 < progress) {
+                    auto p = progress * 100 / time;
+                    callback(p < 100 ? p : 100);
+                }
+            }
         }
     }
 
