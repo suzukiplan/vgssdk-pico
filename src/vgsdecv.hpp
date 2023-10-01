@@ -184,6 +184,17 @@ class VGSDecoder
         return 0;
     }
 
+    void resetContext()
+    {
+        memset(&this->ctx, 0, sizeof(this->ctx));
+        this->ctx.playEnd = false;
+        this->ctx.volumeRate = this->masterVolume;
+        for (int i = 0; i < 6; i++) {
+            this->ctx.ch[i].volumeRate = 100;
+        }
+        this->ctx.play = 0 < bgm.size;
+    }
+
   public:
     VGSDecoder(int masterVolume = 100)
     {
@@ -209,12 +220,6 @@ class VGSDecoder
 
     bool load(const void* data, size_t size)
     {
-        memset(&this->ctx, 0, sizeof(this->ctx));
-        this->ctx.playEnd = false;
-        this->ctx.volumeRate = this->masterVolume;
-        for (int i = 0; i < 6; i++) {
-            this->ctx.ch[i].volumeRate = 100;
-        }
         this->bgm.size = LZ4_decompress_safe((const char*)data,
                                              (char*)this->bgm.data,
                                              (int)size,
@@ -224,51 +229,51 @@ class VGSDecoder
             memcpy(&this->bgm.loopTime, &this->bgm.data[12], 4);
             memmove(this->bgm.data, this->bgm.data + 16, this->bgm.size - 16);
             this->bgm.size -= 16;
-            this->ctx.play = true;
         } else {
-            this->ctx.play = false;
             this->bgm.size = 0;
             this->bgm.lengthTime = 0;
             this->bgm.loopTime = 0;
             memset(this->bgm.data, 0, sizeof(this->bgm.data));
         }
+        resetContext();
         return this->ctx.play;
     }
 
-    bool execute(void* buffer, size_t size)
+    unsigned int execute(void* buffer, size_t size)
     {
-        if (!buffer) return false;
-
+        unsigned int result = 0;
         char* buf = (char*)buffer;
         int pw;
         int wav;
-        short* bp;
 
-        memset(ctx.wav, 0, sizeof(ctx.wav));
-        memset(buf, 0, size);
+        if (buf) {
+            memset(ctx.wav, 0, sizeof(ctx.wav));
+            memset(buf, 0, size);
+        }
         if (!ctx.play || bgm.size < 1) {
             ctx.stopped = true;
-            return false;
+            return result;
         }
         if (100 <= ctx.fade2) {
             if (ctx.play) {
                 ctx.play = false;
                 ctx.playEnd = true;
             }
-            return false;
+            return result;
         }
         if (0 == ctx.waitTime) {
             ctx.waitTime = get_next_note();
+            result += ctx.waitTime;
         }
         if (0 == ctx.waitTime) {
             if (ctx.play) {
                 ctx.play = false;
                 ctx.playEnd = true;
             }
-            return false;
+            return result;
         }
         if (0 == ctx.mvol) {
-            return false;
+            return result;
         }
         for (int i = 0; i < (int)size; i += 2, ctx.hz++) {
             for (int j = 0; j < 6; j++) {
@@ -292,8 +297,8 @@ class VGSDecoder
                             pw = 0;
                         }
                     }
-                    if (!ctx.ch[j].mute) {
-                        bp = (short*)(&buf[i]);
+                    if (!ctx.ch[j].mute && buf) {
+                        auto bp = (short*)(&buf[i]);
                         wav = (wav * pw / 100);
                         if (ctx.ch[j].volumeRate != 100) {
                             wav *= ctx.ch[j].volumeRate;
@@ -329,8 +334,8 @@ class VGSDecoder
                     }
                 }
             }
-            if (ctx.volumeRate != 100) {
-                bp = (short*)(&buf[i]);
+            if (ctx.volumeRate != 100 && buf) {
+                auto bp = (short*)(&buf[i]);
                 wav = (*bp) * ctx.volumeRate;
                 wav /= 100;
                 if (32767 < wav)
@@ -343,7 +348,9 @@ class VGSDecoder
             if (0 == ctx.waitTime) {
                 ctx.waitTime = get_next_note();
                 if (0 == ctx.waitTime) {
-                    return true; /* detect no data (partial data exist) */
+                    return result; /* detect no data (partial data exist) */
+                } else {
+                    result += ctx.waitTime;
                 }
             }
             /* fade out */
@@ -362,13 +369,21 @@ class VGSDecoder
                 }
             }
         }
-        return true;
+        return result;
     }
 
     void fadeout()
     {
         if (0 == ctx.fade2) {
             ctx.fade2 = 1;
+        }
+    }
+
+    void seekTo(int time)
+    {
+        this->resetContext();
+        while (0 < time && this->ctx.play) {
+            time -= this->execute(nullptr, 256);
         }
     }
 

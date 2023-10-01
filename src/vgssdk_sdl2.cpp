@@ -390,6 +390,17 @@ void VGS::BGM::fadeout()
     ((VGSDecoder*)this->context)->fadeout();
 }
 
+void VGS::BGM::seekTo(int time)
+{
+    if (bgmAudioDeviceId) {
+        this->pause();
+        SDL_LockAudioDevice(bgmAudioDeviceId);
+        ((VGSDecoder*)this->context)->seekTo(time);
+        SDL_UnlockAudioDevice(bgmAudioDeviceId);
+        this->resume();
+    }
+}
+
 bool VGS::BGM::isPlayEnd()
 {
     return ((VGSDecoder*)this->context)->isPlayEnd();

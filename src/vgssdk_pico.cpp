@@ -221,6 +221,14 @@ void VGS::BGM::load(const void* buffer, size_t size)
     vgsUnlock();
 }
 
+void VGS::BGM::seekTo(int time)
+{
+    vgsLock();
+    vgsdec.seekTo(time);
+    this->resume();
+    vgsUnlock();
+}
+
 VGS::VGS()
 {
     this->halt = false;
