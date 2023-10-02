@@ -108,17 +108,25 @@ void led(bool on);
 
 本体 LED の点灯・消灯
 
-### `VGS::set60FpsMode method`
+### `VGS::setFrameRate method`
 
 ```c++
-void set60FpsMode(bool on);
+void setFrameRate(int frameRate);
 ```
 
-- `on`:
-  - `true`: `vgs_loop` を 60fps の間隔で呼び出す
-  - `false`: `vgs_loop` をノーウェイトで呼び出す
-- 60fps モードを on にすると `vgs_loop` の呼び出しの前に `vgs.gfx.startWrite`、呼び出し後に `vgs.gfx.endWrite` が暗黙的に呼び出されるようになります
-- [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) では本メソッドを呼び出してもノーウェイトで動作し、`vgs.gfx.startWrite` 〜 `vgs.gfx.endWrite` の暗黙呼び出しのみ実行されます。
+- シミュレータが動作するフレームレートを指定します
+  - 0 〜 60 の範囲で指定できます
+  - 0 を指定するとノーウェイト（デフォルト）になります
+  - シミュレータがサポートするフレームレートに自動補正される場合があります
+- [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) では本メソッドを呼び出しても挙動は変化しません
+
+### `VGS::getFrameRate method`
+
+```c++
+int getFrameRate();
+```
+
+- `VGS::setFrameRate` で指定したフレームレート（補正値）を取得します
 
 ## `VGS::GFX class`
 

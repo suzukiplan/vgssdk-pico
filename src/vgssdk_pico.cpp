@@ -230,7 +230,7 @@ void VGS::BGM::seekTo(int time, void (*callback)(int percent))
 VGS::VGS()
 {
     this->halt = false;
-    this->is60Fps = false;
+    this->frameRate = 0;
 }
 
 VGS::~VGS()
@@ -245,6 +245,11 @@ void VGS::delay(int ms)
 void VGS::led(bool on)
 {
     digitalWrite(25, on ? HIGH : LOW);
+}
+
+void VGS::setFrameRate(int frameRate)
+{
+    this->frameRate = 0;
 }
 
 void setup1()
@@ -329,11 +334,5 @@ void loop()
     vgs.io.touch.x = ctp.status.x;
     vgs.io.touch.y = ctp.status.y;
 #endif
-    if (vgs.is60FpsMode()) {
-        vgs.gfx.startWrite();
-    }
     vgs_loop();
-    if (vgs.is60FpsMode()) {
-        vgs.gfx.endWrite();
-    }
 }

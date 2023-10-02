@@ -10,6 +10,9 @@
 
 class VGS
 {
+  private:
+    int frameRate;
+
   public:
     class GFX
     {
@@ -116,11 +119,8 @@ class VGS
     VGS::IO io;
     void delay(int ms);
     void led(bool on);
-    inline void set60FpsMode(bool on) { this->is60Fps = on; }
-    inline bool is60FpsMode() { return this->is60Fps; }
-
-  private:
-    bool is60Fps;
+    void setFrameRate(int frameRate);
+    inline int getFrameRate() { return this->frameRate; }
 };
 
 // Implement on the app side (only once at startup)

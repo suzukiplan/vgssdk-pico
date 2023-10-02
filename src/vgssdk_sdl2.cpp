@@ -445,7 +445,7 @@ unsigned int VGS::BGM::getDurationTime()
 VGS::VGS()
 {
     this->halt = false;
-    this->is60Fps = false;
+    this->frameRate = 0;
 }
 
 VGS::~VGS()
@@ -460,6 +460,25 @@ void VGS::delay(int ms)
 void VGS::led(bool on)
 {
     log("LED: %s", on ? "on" : "off");
+}
+
+void VGS::setFrameRate(int frameRate)
+{
+    if (frameRate < 1) {
+        this->frameRate = 0;
+    } else if (frameRate < 15) {
+        this->frameRate = 10;
+    } else if (frameRate < 25) {
+        this->frameRate = 20;
+    } else if (frameRate < 35) {
+        this->frameRate = 30;
+    } else if (frameRate < 45) {
+        this->frameRate = 40;
+    } else if (frameRate < 55) {
+        this->frameRate = 50;
+    } else {
+        this->frameRate = 60;
+    }
 }
 
 int main()
@@ -528,12 +547,19 @@ int main()
     log("Continue to execute vgs_loop while no stop signal is detected...");
     SDL_Event event;
     unsigned int loopCount = 0;
-    const int wait60fps[3] = {17, 17, 16};
+    const int waitFps0[3] = {0, 0, 0};
+    const int waitFps10[3] = {100, 100, 100};
+    const int waitFps20[3] = {50, 50, 50};
+    const int waitFps30[3] = {34, 33, 33};
+    const int waitFps40[3] = {25, 25, 25};
+    const int waitFps50[3] = {20, 20, 20};
+    const int waitFps60[3] = {17, 17, 16};
+    const int* waitTime[7] = {waitFps0, waitFps10, waitFps20, waitFps30, waitFps40, waitFps50, waitFps60};
 
     while (!vgs.halt) {
         loopCount++;
         auto start = std::chrono::system_clock::now();
-        if (vgs.is60FpsMode()) {
+        if (0 < vgs.getFrameRate()) {
             vgs.gfx.startWrite();
         }
         vgs_loop();
@@ -559,11 +585,11 @@ int main()
         if (quit) {
             break;
         }
-        if (vgs.is60FpsMode()) {
+        if (0 < vgs.getFrameRate()) {
             vgs.gfx.endWrite();
             std::chrono::duration<double> diff = std::chrono::system_clock::now() - start;
             int ms = (int)(diff.count() * 1000);
-            int wait = wait60fps[loopCount % 3];
+            int wait = waitTime[vgs.getFrameRate() / 10][loopCount % 3];
             if (ms < wait) {
                 usleep((wait - ms) * 1000);
             }

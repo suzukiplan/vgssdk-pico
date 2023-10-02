@@ -27,7 +27,7 @@ extern "C" void vgs_setup()
     vgfx.line(6, 26, 26, 6, 0x0000);
     vgs.bgm.load(bgmTestData, sizeof(bgmTestData));
     vgs.gfx.endWrite();
-    vgs.set60FpsMode(true);
+    vgs.setFrameRate(30);
 }
 
 extern "C" void vgs_loop()
