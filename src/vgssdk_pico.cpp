@@ -1,10 +1,10 @@
+#include "FT6336U.hpp"
 #include "vgsdecv.hpp"
 #include "vgssdk.h"
 #include <I2S.h>
 #include <SPI.h>
 #include <TFT_eSPI.h>
-#include <chrono>
-#include <math.h>
+#include <Wire.h>
 #include <pico/multicore.h>
 #include <pico/stdlib.h>
 #include <stdio.h>
@@ -13,9 +13,6 @@
 
 #define VGS_DISPLAY_WIDTH 240
 #define VGS_DISPLAY_HEIGHT 320
-#define UDA1334A_PIN_DIN 13
-#define UDA1334A_PIN_BCLK 14
-#define UDA1334A_PIN_WSEL 15
 #define VGS_BUFFER_SIZE 4096
 #define REVERSE_SCREEN
 
@@ -25,6 +22,7 @@
 VGS vgs;
 static VGSDecoder vgsdec;
 static TFT_eSPI tft(VGS_DISPLAY_WIDTH, VGS_DISPLAY_HEIGHT);
+static FT6336U ctp(&Wire, CTP_SDA, CTP_SCL, CTP_RST, CTP_INT);
 static I2S i2s(OUTPUT);
 static semaphore_t vgsSemaphore;
 static bool cpu0SetupEnd = false;
@@ -281,43 +279,38 @@ void setup()
     pinMode(25, OUTPUT);
     vgs.led(true);
 
-    i2s.setBCLK(UDA1334A_PIN_BCLK);
-    i2s.setDATA(UDA1334A_PIN_DIN);
+    // LCD のバックライトを点灯
+    pinMode(TFT_BL, OUTPUT);
+    digitalWrite(TFT_BL, HIGH);
+
+    // initialize UDA1334A I2S (DAC)
+    i2s.setBCLK(DAC_BCLK);
+    i2s.setDATA(DAC_DIN);
     i2s.setBitsPerSample(16);
     i2s.setBuffers(16, 128, 0); // 2048 bytes
     i2s.begin(22050);
 
     sem_init(&vgsSemaphore, 1, 1);
-    pinMode(TFT_BL, OUTPUT);
-    digitalWrite(TFT_BL, HIGH);
     tft.init();
+    tft.invertDisplay(true);
     tft.startWrite();
 
     // ディスプレイの向きを初期化
 #ifdef REVERSE_SCREEN
     tft.setRotation(2);
-    uint16_t touch[] = {
-        300,
-        3600,
-        300,
-        3600,
-        0b010};
-    tft.setTouch(touch);
 #else
     tft.setRotation(0);
-    uint16_t touch[] = {
-        300,
-        3600,
-        300,
-        3600,
-        0b100};
-    tft.setTouch(touch);
 #endif
     tft.endWrite();
 
+    // initialize FT6336U I2C (Capacitive Touch Panel)
+    ctp.begin();
+
+    // initialize VGS
     vgs.bgm.setMasterVolume(16);
     vgs_setup();
 
+    // LED off
     delay(200);
     vgs.led(false);
     cpu0SetupEnd = true;
@@ -325,12 +318,17 @@ void setup()
 
 void loop()
 {
-    uint16_t tx, ty;
-    vgs.io.touch.on = 0 < tft.getTouch(&tx, &ty);
-    if (vgs.io.touch.on) {
-        vgs.io.touch.x = tx;
-        vgs.io.touch.y = ty;
-    }
+    vgsLock();
+    ctp.scan();
+    vgsUnlock();
+    vgs.io.touch.on = ctp.status.on;
+#ifdef REVERSE_SCREEN
+    vgs.io.touch.x = VGS_DISPLAY_WIDTH - 1 - ctp.status.x;
+    vgs.io.touch.y = VGS_DISPLAY_HEIGHT - 1 - ctp.status.y;
+#else
+    vgs.io.touch.x = ctp.status.x;
+    vgs.io.touch.y = ctp.status.y;
+#endif
     if (vgs.is60FpsMode()) {
         vgs.gfx.startWrite();
     }
