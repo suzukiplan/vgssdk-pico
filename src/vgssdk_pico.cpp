@@ -184,6 +184,15 @@ void VGS::GFX::image(int x, int y, int width, int height, const unsigned short* 
     }
 }
 
+void VGS::GFX::image(int x, int y, int width, int height, const unsigned short* buffer, unsigned short transparent)
+{
+    if (this->isVirtual()) {
+        ((TFT_eSprite*)this->vDisplay.buffer)->pushImage(x, y, width, height, buffer, transparent);
+    } else {
+        tft.pushImage(x, y, width, height, buffer, transparent);
+    }
+}
+
 void VGS::GFX::push(int x, int y)
 {
     if (this->isVirtual()) {

@@ -267,11 +267,16 @@ void boxf(int x, int y, int width, int height, unsigned short color);
 ### `VGS::GFX::image method`
 
 ```c++
+// normal
 void image(int x, int y, int width, int height, const unsigned short* buffer);
+
+// with transpanrent color
+void image(int x, int y, int width, int height, const unsigned short* buffer, unsigned short transparent)
 ```
 
 - bitmap 形式のイメージを指定座標 (x, y) に描画します
 - bitmap は指定サイズ (width, height) の RGB565 形式（リトルエンディアン）の配列とします
+- transparent を指定すると一致する色を透明色とします
 
 ### `VGS::GFX::push method`
 

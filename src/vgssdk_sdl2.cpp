@@ -312,6 +312,19 @@ void VGS::GFX::image(int x, int y, int width, int height, const unsigned short* 
     }
 }
 
+void VGS::GFX::image(int x, int y, int width, int height, const unsigned short* buffer, unsigned short transparent)
+{
+    int ptr = 0;
+    for (int yy = 0; yy < height; yy++) {
+        for (int xx = 0; xx < width; xx++) {
+            auto color = buffer[ptr++];
+            if (color != transparent) {
+                this->pixel(x + xx, y + yy, flip(color));
+            }
+        }
+    }
+}
+
 void VGS::GFX::push(int x, int y)
 {
     if (!this->isVirtual()) return;
