@@ -72,6 +72,14 @@ void VGS::GFX::endWrite()
     }
 }
 
+void VGS::GFX::startWriteSimulatorOnly()
+{
+}
+
+void VGS::GFX::endWriteSimulatorOnly()
+{
+}
+
 int VGS::GFX::getWidth()
 {
     if (this->isVirtual()) {
@@ -178,18 +186,18 @@ void VGS::GFX::boxf(int x, int y, int width, int height, unsigned short color)
 void VGS::GFX::image(int x, int y, int width, int height, const unsigned short* buffer)
 {
     if (this->isVirtual()) {
-        ((TFT_eSprite*)this->vDisplay.buffer)->pushImage(x, y, width, height, buffer);
+        ((TFT_eSprite*)this->vDisplay.buffer)->pushImage(x, y, width, height, (uint16_t*)buffer);
     } else {
-        tft.pushImage(x, y, width, height, buffer);
+        tft.pushImage(x, y, width, height, (uint16_t*)buffer);
     }
 }
 
 void VGS::GFX::image(int x, int y, int width, int height, const unsigned short* buffer, unsigned short transparent)
 {
     if (this->isVirtual()) {
-        ((TFT_eSprite*)this->vDisplay.buffer)->pushImage(x, y, width, height, buffer, transparent);
+        ((TFT_eSprite*)this->vDisplay.buffer)->pushImage(x, y, width, height, (uint16_t*)buffer, transparent);
     } else {
-        tft.pushImage(x, y, width, height, buffer, transparent);
+        tft.pushImage(x, y, width, height, (uint16_t*)buffer, transparent);
     }
 }
 

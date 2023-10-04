@@ -38,6 +38,8 @@ class VGS
         ~GFX();
         void startWrite();
         void endWrite();
+        void startWriteSimulatorOnly();
+        void endWriteSimulatorOnly();
         inline unsigned short* getVirtualBuffer() { return (unsigned short*)vDisplay.buffer; }
         inline bool isVirtual() { return nullptr != this->getVirtualBuffer(); }
         int getWidth();

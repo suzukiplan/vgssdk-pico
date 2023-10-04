@@ -381,8 +381,15 @@ class VGSDecoder
 
     void seekTo(int time, void (*callback)(int percent) = nullptr)
     {
-        int progress = 0;
-        this->resetContext();
+        int progress;
+        if (ctx.timeP == time) {
+            return;
+        } else if (ctx.timeP < time) {
+            progress = ctx.timeP;
+        } else {
+            progress = 0;
+            this->resetContext();
+        }
         if (0 < time) {
             while (progress < time && this->ctx.play) {
                 progress += this->execute(nullptr, 1024);
