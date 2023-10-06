@@ -465,6 +465,11 @@ unsigned int VGS::BGM::getDurationTime()
     return ((VGSDecoder*)this->context)->getDurationTime();
 }
 
+int VGS::BGM::getIndex()
+{
+    return ((VGSDecoder*)this->context)->getIndex();
+}
+
 VGS::VGS()
 {
     this->halt = false;

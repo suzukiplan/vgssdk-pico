@@ -399,7 +399,7 @@ unsigned int getLengthTime();
 
 楽曲の長さ（22050 が 1秒）を返す
 
-### `VGS::BGM::`
+### `VGS::BGM::getLoopTime`
 
 ```c++
 unsigned int getLoopTime();
@@ -407,13 +407,21 @@ unsigned int getLoopTime();
 
 ループ起点の時間（22050 が 1秒）を返す
 
-### `VGS::BGM::`
+### `VGS::BGM::getDurationTime`
 
 ```c++
 unsigned int getDurationTime();
 ```
 
 現在の再生時間（22050 が 1秒）を返す
+
+### `VGS::BGM::getIndex`
+
+```c++
+unsigned int getInde();
+```
+
+現在の BGM の再生位置（バイト単位）を返す
 
 ## `VGS::IO class`
 

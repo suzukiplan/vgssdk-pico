@@ -227,6 +227,7 @@ unsigned char VGS::BGM::getKey(int cn) { return vgsdec.getKey(cn & 0xFF); }
 unsigned int VGS::BGM::getLengthTime() { return vgsdec.getLengthTime(); }
 unsigned int VGS::BGM::getLoopTime() { return vgsdec.getLoopTime(); }
 unsigned int VGS::BGM::getDurationTime() { return vgsdec.getDurationTime(); }
+int VGS::BGM::getIndex() { return vgsdec.getIndex(); }
 
 void VGS::BGM::load(const void* buffer, size_t size)
 {

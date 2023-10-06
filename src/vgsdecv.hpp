@@ -414,4 +414,5 @@ class VGSDecoder
     unsigned int getLengthTime() { return bgm.lengthTime; }
     unsigned int getLoopTime() { return bgm.loopTime; }
     unsigned int getDurationTime() { return ctx.timeP; }
+    int getIndex() { return ctx.nidx; }
 };

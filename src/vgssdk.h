@@ -83,6 +83,7 @@ class VGS
         unsigned int getLengthTime();
         unsigned int getLoopTime();
         unsigned int getDurationTime();
+        int getIndex();
     };
 
     class IO
