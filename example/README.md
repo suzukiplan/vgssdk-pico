@@ -6,6 +6,7 @@
 |:-|:-|:-|
 |[./rgb/rgb.cpp](./rgb/rgb.cpp)|![./rgb.png](./rgb.png)|画面にRGBカラー等を表示|
 |[./image/image.cpp](./image/image.cpp)|![./image.png](./image.png)|16x16のイメージをランダムに描画|
+|[./sound/sound.cpp](./sound/sound.cpp)|TODO: add image|BGMを再生|
 |[./touch/touch.cpp](./touch/touch.cpp)|![./touch.png](./touch.png)|タッチで描画する簡易ペイント|
 
 ## How to Build

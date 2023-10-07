@@ -5,12 +5,14 @@ OBJECTS_SDK = vgssdk_sdl2.o vgstone.o lz4.o
 OBJECTS_RGB = rgb.o ${OBJECTS_SDK}
 OBJECTS_TOUCH = touch.o ${OBJECTS_SDK}
 OBJECTS_IMAGE = image.o image_test_data.o ${OBJECTS_SDK}
+OBJECTS_SOUND = sound.o bgm_test_data.o ${OBJECTS_SDK}
 
 all:
 	make bin
 	make bin/rgb
 	make bin/touch
 	make bin/image
+	make bin/sound
 
 bin/rgb: $(OBJECTS_RGB)
 	g++ -o bin/rgb $(OBJECTS_RGB) -L/usr/local/lib -lSDL2
@@ -21,11 +23,17 @@ bin/touch: $(OBJECTS_TOUCH)
 bin/image: ${OBJECTS_IMAGE}
 	g++ -o bin/image $(OBJECTS_IMAGE) -L/usr/local/lib -lSDL2
 
+bin/sound: ${OBJECTS_SOUND}
+	g++ -o bin/sound $(OBJECTS_SOUND) -L/usr/local/lib -lSDL2
+
 bin:
 	mkdir bin
 
 format: 
 	make execute-format FILENAME=./example/rgb/rgb.cpp
+	make execute-format FILENAME=./example/touch/touch.cpp
+	make execute-format FILENAME=./example/image/image.cpp
+	make execute-format FILENAME=./example/sound/sound.cpp
 	make execute-format FILENAME=./src/vgssdk_sdl2.cpp
 	make execute-format FILENAME=./src/vgssdk_pico.cpp
 	make execute-format FILENAME=./src/vgssdk.h
@@ -47,6 +55,9 @@ image.o: example/image/image.cpp src/vgssdk.h
 
 image_test_data.o: example/image/image_test_data.c
 	gcc $(CFLAGS) -I./src -c example/image/image_test_data.c
+
+sound.o: example/sound/sound.cpp src/vgssdk.h
+	g++ $(CPPFLAGS) -I./src -c example/sound/sound.cpp
 
 bgm_test_data.o: example/sound/bgm_test_data.c
 	gcc $(CLAGS) -c example/sound/bgm_test_data.c
