@@ -155,13 +155,45 @@ void VGS::GFX::lineH(int x1, int y1, int x2, unsigned short color)
 void VGS::GFX::line(int x1, int y1, int x2, int y2, unsigned short color)
 {
     if (x1 == x2) {
-        this->lineV(x1, y1, y2, color);
+        this->lineV(x1, y1 < y2 ? y1 : y2, abs(y1 - y2) + 1, color);
     } else if (y1 == y2) {
-        this->lineH(x1, y1, x2, color);
-    } else if (this->isVirtual()) {
-        ((TFT_eSprite*)this->vDisplay.buffer)->drawLine(x1, y1, x2, y2, color);
+        this->lineH(x1 < x2 ? x1 : x2, y1, abs(x1 - x2) + 1, color);
+    }
+    int ia, ib, ie;
+    int w;
+    int idx = x2 - x1;
+    int idy = y2 - y1;
+    w = 1;
+    ia = abs_(idx);
+    ib = abs_(idy);
+    if (ia >= ib) {
+        ie = -abs_(idy);
+        while (w) {
+            this->pixel(x1, y1, color);
+            if (x1 == x2) {
+                break;
+            }
+            x1 += sgn_(idx);
+            ie += 2 * ib;
+            if (ie >= 0) {
+                y1 += sgn_(idy);
+                ie -= 2 * ia;
+            }
+        }
     } else {
-        tft.drawLine(x1, y1, x2, y2, color);
+        ie = -abs_(idx);
+        while (w) {
+            this->pixel(x1, y1, color);
+            if (y1 == y2) {
+                break;
+            }
+            y1 += sgn_(idy);
+            ie += 2 * ia;
+            if (ie >= 0) {
+                x1 += sgn_(idx);
+                ie -= 2 * ib;
+            }
+        }
     }
 }
 
