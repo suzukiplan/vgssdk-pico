@@ -16,53 +16,7 @@ vgssdk-pico を用いることで、パソコン（Linux or macOS）のみで効
 
 ## How to build example app
 
-### macOS
-
-XCODE と HomeBrew がインストールされた環境のターミナルで以下のコマンドを実行することでビルドと実行ができます。
-
-```bash
-# SDL2 をインストール
-brew install sdl2
-
-# リポジトリを取得
-git clone https://github.com/suzukiplan/vgssdk-pico
-
-# リポジトリのディレクトリへ移動
-cd vgssdk-pico
-
-# ビルド
-make
-
-# 実行
-./app
-```
-
-### Linux (Ubuntu)
-
-```bash
-# SDL2 をインストール
-sudo apt-get install libsdl2-dev
-
-# ALSA をインストール
-sudo apt-get install libasound2
-sudo apt-get install libasound2-dev
-
-# リポジトリを取得
-git clone https://github.com/suzukiplan/vgssdk-pico
-
-# リポジトリのディレクトリへ移動
-cd vgssdk-pico
-
-# ビルド
-make
-
-# 実行
-./app
-```
-
-### [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)
-
-[コチラ](./pico)を参照
+[./example/README.md](./example/README.md) を参照してください。
 
 ## API outline
 
