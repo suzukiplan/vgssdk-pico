@@ -38,6 +38,12 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 
 なお、[東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)が対応する SoC (RaspberryPi Pico) はマルチコアコア（2 cores）の構成ですが、片方のコアは VGS の音声再生に専念させるため vgssdk-pico を用いるアプリはシングルコア（シングルスレッド & シングルタスク）で設計するものとします。
 
+## Compile Flags
+
+|Compile Flag|Description|
+|:-:|:-|
+|`-DVGSBGM_LIMIT_SIZE=数値`|BGMの非圧縮サイズ上限を KB 単位で指定（省略時: 108KB）|
+
 ## `VGS class`
 
 ### Public Member Variables
