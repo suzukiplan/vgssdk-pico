@@ -1,13 +1,31 @@
 SDLOPTS = -I/usr/include/SDL2 -I/usr/local/include/SDL2 -I/opt/X11/include -D_THREAD_SAFE
 CFLAGS = -O2 ${SDLOPTS}
 CPPFLAGS = -std=c++11 -O2 ${SDLOPTS}
-OBJECTS = app.o bgm_test_data.o image_test_data.o vgssdk_sdl2.o vgstone.o lz4.o
+OBJECTS_SDK = vgssdk_sdl2.o vgstone.o lz4.o
+OBJECTS_RGB = rgb.o ${OBJECTS_SDK}
+OBJECTS_TOUCH = touch.o ${OBJECTS_SDK}
+OBJECTS_IMAGE = image.o image_test_data.o ${OBJECTS_SDK}
 
-all: $(OBJECTS)
-	g++ -o app $(OBJECTS) -L/usr/local/lib -lSDL2
+all:
+	make bin
+	make bin/rgb
+	make bin/touch
+	make bin/image
+
+bin/rgb: $(OBJECTS_RGB)
+	g++ -o bin/rgb $(OBJECTS_RGB) -L/usr/local/lib -lSDL2
+
+bin/touch: $(OBJECTS_TOUCH)
+	g++ -o bin/touch $(OBJECTS_TOUCH) -L/usr/local/lib -lSDL2
+
+bin/image: ${OBJECTS_IMAGE}
+	g++ -o bin/image $(OBJECTS_IMAGE) -L/usr/local/lib -lSDL2
+
+bin:
+	mkdir bin
 
 format: 
-	make execute-format FILENAME=./example/app.cpp
+	make execute-format FILENAME=./example/rgb/rgb.cpp
 	make execute-format FILENAME=./src/vgssdk_sdl2.cpp
 	make execute-format FILENAME=./src/vgssdk_pico.cpp
 	make execute-format FILENAME=./src/vgssdk.h
@@ -18,14 +36,20 @@ execute-format:
 	cat ${FILENAME}.bak > ${FILENAME}
 	rm ${FILENAME}.bak
 
-app.o: example/app.cpp src/vgssdk.h
-	g++ $(CPPFLAGS) -I./src -c example/app.cpp
+rgb.o: example/rgb/rgb.cpp src/vgssdk.h
+	g++ $(CPPFLAGS) -I./src -c example/rgb/rgb.cpp
 
-bgm_test_data.o: example/bgm_test_data.c
-	gcc $(CLAGS) -c example/bgm_test_data.c
+touch.o: example/touch/touch.cpp src/vgssdk.h
+	g++ $(CPPFLAGS) -I./src -c example/touch/touch.cpp
 
-image_test_data.o: example/image_test_data.c
-	gcc $(CLAGS) -c example/image_test_data.c
+image.o: example/image/image.cpp src/vgssdk.h
+	g++ $(CPPFLAGS) -I./src -c example/image/image.cpp
+
+image_test_data.o: example/image/image_test_data.c
+	gcc $(CFLAGS) -I./src -c example/image/image_test_data.c
+
+bgm_test_data.o: example/sound/bgm_test_data.c
+	gcc $(CLAGS) -c example/sound/bgm_test_data.c
 
 vgssdk_sdl2.o: src/vgssdk_sdl2.cpp src/vgssdk.h
 	g++ $(CPPFLAGS) -c src/vgssdk_sdl2.cpp
