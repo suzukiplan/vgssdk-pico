@@ -6,6 +6,7 @@ OBJECTS_RGB = rgb.o ${OBJECTS_SDK}
 OBJECTS_TOUCH = touch.o ${OBJECTS_SDK}
 OBJECTS_IMAGE = image.o image_test_data.o ${OBJECTS_SDK}
 OBJECTS_SOUND = sound.o bgm_test_data.o ${OBJECTS_SDK}
+OBJECTS_SANDSTORM = sandstorm.o ${OBJECTS_SDK}
 
 all:
 	make bin
@@ -13,6 +14,7 @@ all:
 	make bin/touch
 	make bin/image
 	make bin/sound
+	make bin/sandstorm
 
 bin/rgb: $(OBJECTS_RGB)
 	g++ -o bin/rgb $(OBJECTS_RGB) -L/usr/local/lib -lSDL2
@@ -26,6 +28,9 @@ bin/image: ${OBJECTS_IMAGE}
 bin/sound: ${OBJECTS_SOUND}
 	g++ -o bin/sound $(OBJECTS_SOUND) -L/usr/local/lib -lSDL2
 
+bin/sandstorm: ${OBJECTS_SANDSTORM}
+	g++ -o bin/sandstorm $(OBJECTS_SANDSTORM) -L/usr/local/lib -lSDL2
+
 bin:
 	mkdir bin
 
@@ -34,6 +39,7 @@ format:
 	make execute-format FILENAME=./example/touch/touch.cpp
 	make execute-format FILENAME=./example/image/image.cpp
 	make execute-format FILENAME=./example/sound/sound.cpp
+	make execute-format FILENAME=./example/sandstorm/sandstorm.cpp
 	make execute-format FILENAME=./src/vgssdk_sdl2.cpp
 	make execute-format FILENAME=./src/vgssdk_pico.cpp
 	make execute-format FILENAME=./src/vgssdk.h
@@ -49,6 +55,9 @@ rgb.o: example/rgb/rgb.cpp src/vgssdk.h
 
 touch.o: example/touch/touch.cpp src/vgssdk.h
 	g++ $(CPPFLAGS) -I./src -c example/touch/touch.cpp
+
+sandstorm.o: example/sandstorm/sandstorm.cpp src/vgssdk.h
+	g++ $(CPPFLAGS) -I./src -c example/sandstorm/sandstorm.cpp
 
 image.o: example/image/image.cpp src/vgssdk.h
 	g++ $(CPPFLAGS) -I./src -c example/image/image.cpp
