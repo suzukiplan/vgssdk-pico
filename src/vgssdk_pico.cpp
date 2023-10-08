@@ -155,13 +155,45 @@ void VGS::GFX::lineH(int x1, int y1, int x2, unsigned short color)
 void VGS::GFX::line(int x1, int y1, int x2, int y2, unsigned short color)
 {
     if (x1 == x2) {
-        this->lineV(x1, y1, y2, color);
+        this->lineV(x1, y1 < y2 ? y1 : y2, abs(y1 - y2) + 1, color);
     } else if (y1 == y2) {
-        this->lineH(x1, y1, x2, color);
-    } else if (this->isVirtual()) {
-        ((TFT_eSprite*)this->vDisplay.buffer)->drawLine(x1, y1, x2, y2, color);
+        this->lineH(x1 < x2 ? x1 : x2, y1, abs(x1 - x2) + 1, color);
+    }
+    int ia, ib, ie;
+    int w;
+    int idx = x2 - x1;
+    int idy = y2 - y1;
+    w = 1;
+    ia = abs_(idx);
+    ib = abs_(idy);
+    if (ia >= ib) {
+        ie = -abs_(idy);
+        while (w) {
+            this->pixel(x1, y1, color);
+            if (x1 == x2) {
+                break;
+            }
+            x1 += sgn_(idx);
+            ie += 2 * ib;
+            if (ie >= 0) {
+                y1 += sgn_(idy);
+                ie -= 2 * ia;
+            }
+        }
     } else {
-        tft.drawLine(x1, y1, x2, y2, color);
+        ie = -abs_(idx);
+        while (w) {
+            this->pixel(x1, y1, color);
+            if (y1 == y2) {
+                break;
+            }
+            y1 += sgn_(idy);
+            ie += 2 * ia;
+            if (ie >= 0) {
+                x1 += sgn_(idx);
+                ie -= 2 * ib;
+            }
+        }
     }
 }
 
@@ -245,6 +277,21 @@ void VGS::BGM::seekTo(int time, void (*callback)(int percent))
     vgsUnlock();
 }
 
+VGS::SoundEffect::SoundEffect()
+{
+    memset(&this->context, 0, sizeof(this->context));
+    this->context.masterVolume = 100;
+}
+
+void VGS::SoundEffect::play(const short* buffer, size_t size)
+{
+    vgsLock();
+    this->context.ptr = buffer;
+    this->context.count = size / 2;
+    this->context.cursor = 0;
+    vgsUnlock();
+}
+
 VGS::VGS()
 {
     this->halt = false;
@@ -277,6 +324,31 @@ void setup1()
     }
 }
 
+static inline void playSoundEffect(short* buffer, int count)
+{
+    if (!vgs.eff.context.ptr || vgs.eff.context.masterVolume < 1) {
+        return;
+    }
+    for (int i = 0; i < count; i++) {
+        int wav = buffer[i];
+        int snd = vgs.eff.context.ptr[vgs.eff.context.cursor];
+        snd *= vgs.eff.context.masterVolume;
+        snd /= 100;
+        wav += snd;
+        if (32767 < wav) {
+            wav = 32767;
+        } else if (wav < -32768) {
+            wav = -32768;
+        }
+        buffer[i] = (short)wav;
+        vgs.eff.context.cursor++;
+        if (vgs.eff.context.count <= vgs.eff.context.cursor) {
+            vgs.eff.context.ptr = nullptr;
+            return;
+        }
+    }
+}
+
 void loop1()
 {
     static int16_t buffer[2][VGS_BUFFER_SIZE];
@@ -288,9 +360,13 @@ void loop1()
         if (bgmLoaded && !vgs.bgm.isPaused()) {
             vgsLock();
             vgsdec.execute(buffer[1 - page], VGS_BUFFER_SIZE * 2);
+            playSoundEffect(buffer[1 - page], VGS_BUFFER_SIZE);
             vgsUnlock();
         } else {
             memset(buffer[1 - page], 0, VGS_BUFFER_SIZE * 2);
+            vgsLock();
+            playSoundEffect(buffer[1 - page], VGS_BUFFER_SIZE);
+            vgsUnlock();
         }
     }
     i2s.write16(buffer[page][index], buffer[page][index]);
@@ -331,6 +407,7 @@ void setup()
 
     // initialize VGS
     vgs.bgm.setMasterVolume(16);
+    vgs.eff.setMasterVolume(16);
     vgs_setup();
 
     // LED off

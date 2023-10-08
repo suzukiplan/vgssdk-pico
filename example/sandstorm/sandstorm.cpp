@@ -5,6 +5,9 @@ extern VGS vgs;
 
 extern "C" void vgs_setup()
 {
+    vgs.gfx.startWrite();
+    vgs.gfx.clear(0);
+    vgs.gfx.endWrite();
 }
 
 extern "C" void vgs_loop()

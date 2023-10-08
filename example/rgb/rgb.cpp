@@ -5,6 +5,7 @@ extern VGS vgs;
 extern "C" void vgs_setup()
 {
     vgs.gfx.startWrite();
+    vgs.gfx.clear(0);
     for (int i = 0; i < 32; i++) {
         int y = 0;
         vgs.gfx.boxf(8 + i * 6, 8 + 8 * y++, 5, 5, i << 11);                           // Red

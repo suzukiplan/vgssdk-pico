@@ -5,10 +5,11 @@ OBJECTS_SDK = vgssdk_sdl2.o vgstone.o lz4.o
 OBJECTS_RGB = rgb.o ${OBJECTS_SDK}
 OBJECTS_TOUCH = touch.o ${OBJECTS_SDK}
 OBJECTS_IMAGE = image.o image_test_data.o ${OBJECTS_SDK}
-OBJECTS_SOUND = sound.o bgm_test_data.o ${OBJECTS_SDK}
+OBJECTS_SOUND = sound.o bgm_test_data.o small_font.o eff1.o eff2.o eff3.o ${OBJECTS_SDK}
 OBJECTS_SANDSTORM = sandstorm.o ${OBJECTS_SDK}
 
 all:
+	cd tools && make
 	make bin
 	make bin/rgb
 	make bin/touch
@@ -70,6 +71,18 @@ sound.o: example/sound/sound.cpp src/vgssdk.h
 
 bgm_test_data.o: example/sound/bgm_test_data.c
 	gcc $(CLAGS) -c example/sound/bgm_test_data.c
+
+small_font.o: example/sound/small_font.c
+	gcc $(CLAGS) -c example/sound/small_font.c
+
+eff1.o: example/sound/eff1.c
+	gcc $(CLAGS) -c example/sound/eff1.c
+
+eff2.o: example/sound/eff2.c
+	gcc $(CLAGS) -c example/sound/eff2.c
+
+eff3.o: example/sound/eff3.c
+	gcc $(CLAGS) -c example/sound/eff3.c
 
 vgssdk_sdl2.o: src/vgssdk_sdl2.cpp src/vgssdk.h
 	g++ $(CPPFLAGS) -c src/vgssdk_sdl2.cpp

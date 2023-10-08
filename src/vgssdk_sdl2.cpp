@@ -229,36 +229,14 @@ void VGS::GFX::lineH(int x, int y, int width, unsigned short color)
 void VGS::GFX::line(int x1, int y1, int x2, int y2, unsigned short color)
 {
     if (x1 == x2) {
-        this->lineV(x1, y1, abs(y1 - y2) + 1, color);
+        this->lineV(x1, y1 < y2 ? y1 : y2, abs(y1 - y2) + 1, color);
     } else if (y1 == y2) {
-        this->lineH(x1, y1, abs(x1 - x2) + 1, color);
+        this->lineH(x1 < x2 ? x1 : x2, y1, abs(x1 - x2) + 1, color);
     }
     int ia, ib, ie;
     int w;
     int idx = x2 - x1;
     int idy = y2 - y1;
-    if (!idx || !idy) {
-        if (x2 < x1) {
-            w = x1;
-            x1 = x2;
-            x2 = w;
-        }
-        if (y2 < y1) {
-            w = y1;
-            y1 = y2;
-            y2 = w;
-        }
-        if (0 == idy) {
-            for (; x1 <= x2; x1++) {
-                this->pixel(x1, y1, color);
-            }
-        } else {
-            for (; y1 <= y2; y1++) {
-                this->pixel(x1, y1, color);
-            }
-        }
-        return;
-    }
     w = 1;
     ia = abs_(idx);
     ib = abs_(idy);
@@ -349,14 +327,42 @@ void VGS::GFX::push(int x, int y)
 static SDL_AudioDeviceID bgmAudioDeviceId;
 static bool bgmLoaded;
 
+static inline void playSoundEffect(VGS::SoundEffect* eff, short* buffer, int count)
+{
+    if (!eff->context.ptr || eff->context.masterVolume < 1) {
+        return;
+    }
+    for (int i = 0; i < count; i++) {
+        int wav = buffer[i];
+        int snd = eff->context.ptr[eff->context.cursor];
+        snd *= eff->context.masterVolume;
+        snd /= 100;
+        wav += snd;
+        if (32767 < wav) {
+            wav = 32767;
+        } else if (wav < -32768) {
+            wav = -32768;
+        }
+        buffer[i] = (short)wav;
+        eff->context.cursor++;
+        if (eff->context.count <= eff->context.cursor) {
+            eff->context.ptr = nullptr;
+            return;
+        }
+    }
+}
+
 static void bgmCallback(void* userdata, Uint8* stream, int len)
 {
+    auto eff = &((VGS*)userdata)->eff;
     if (bgmLoaded) {
-        auto bgm = (VGS::BGM*)userdata;
+        auto bgm = &((VGS*)userdata)->bgm;
         auto decoder = (VGSDecoder*)bgm->getContext();
         decoder->execute(stream, len);
+        playSoundEffect(eff, (short*)stream, len / 2);
     } else {
         memset(stream, 0, len);
+        playSoundEffect(eff, (short*)stream, len / 2);
     }
 }
 
@@ -470,6 +476,21 @@ int VGS::BGM::getIndex()
     return ((VGSDecoder*)this->context)->getIndex();
 }
 
+VGS::SoundEffect::SoundEffect()
+{
+    memset(&this->context, 0, sizeof(this->context));
+    this->context.masterVolume = 100;
+}
+
+void VGS::SoundEffect::play(const short* buffer, size_t size)
+{
+    SDL_LockAudioDevice(bgmAudioDeviceId);
+    this->context.ptr = buffer;
+    this->context.count = size / 2;
+    this->context.cursor = 0;
+    SDL_UnlockAudioDevice(bgmAudioDeviceId);
+}
+
 VGS::VGS()
 {
     this->halt = false;
@@ -530,7 +551,7 @@ int main()
     desired.channels = 1;
     desired.samples = 2048;
     desired.callback = bgmCallback;
-    desired.userdata = &vgs.bgm;
+    desired.userdata = &vgs;
     bgmAudioDeviceId = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
     if (0 == bgmAudioDeviceId) {
         log(" ... SDL_OpenAudioDevice failed: %s", SDL_GetError());

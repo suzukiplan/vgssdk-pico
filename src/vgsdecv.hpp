@@ -34,7 +34,11 @@ class VGSDecoder
 {
   private:
     struct BGM {
+#ifdef VGSBGM_LIMIT_SIZE
+        unsigned char data[VGSBGM_LIMIT_SIZE * 1024];
+#else
         unsigned char data[108 * 1024];
+#endif
         int size;
         unsigned int lengthTime;
         unsigned int loopTime;
