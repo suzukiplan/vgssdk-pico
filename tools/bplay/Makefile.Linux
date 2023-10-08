@@ -1,0 +1,9 @@
+SOURCE=\
+	src/BufferQueue.cpp\
+	src/sound-linux.cpp\
+	src/bplay.cpp\
+	../../src/lz4.c\
+	../../src/vgstone.c
+
+all:
+	g++ -std=c++11 -I../../src -Os -o bplay $(SOURCE) -lasound
