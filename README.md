@@ -284,9 +284,9 @@ LZ4 で圧縮された VGS の可変方式 BGM データファイルを読み込
 
 > 【参考】対応データ作成方法
 > 
-> 1. [vgsmml](https://github.com/suzukiplan/tohovgs-pico/tree/master/tools/vgsmml) で MML をコンパイル
-> 2. [vgsftv](https://github.com/suzukiplan/tohovgs-pico/tree/master/tools/vgsftv) で可変化方式にコンバート
-> 3. [vgslz4](https://github.com/suzukiplan/tohovgs-pico/tree/master/tools/vgslz4) で LZ4 圧縮
+> 1. [vgsmml](./tools/vgsmml) で MML をコンパイル
+> 2. [vgsftv](./tools/vgsftv) で可変化方式にコンバート
+> 3. [vgslz4](./tools/vgslz4) で LZ4 圧縮
 
 ### `VGS::BGM::getMasterVolume method`
 
@@ -456,6 +456,17 @@ NOTES:
 
 - vgssdk-pico は本体がマルチタッチに対応していてもシングルタッチの状態のみ取得でき、マルチタッチ中は最も優先度が高いタッチ状態のみを取得するものとします
 - PC (macOS, Linux) では マウス を用いてタッチを行うものとして左クリックと右クリックを区別しないものとします
+
+## Tools
+
+|Name|Description|
+|:-|:-|
+|[bin2var](./tools/bin2var/)|バイナリファイルを `const` の配列形式ソースファイルに変換|
+|[var2ext](./tools/varext/)|[bin2var](./tools/bin2var/)で生成したソースファイル群から `extern` 宣言するヘッダファイルを生成|
+|[bmp2img](./tools/bmp2img/)|Bitmap形式画像ファイルを `VGS::GFX::image` で扱える形式に変換|
+|[vgsmml](./tools/vgsmml/)|MMLコンパイラ|
+|[vgsftv](./tools/vgsftv/)|[vgsmml](./tools/vgsmml/)でコンパイルしたBGMを可変データ形式に変換|
+|[vgslz4](./tools/vgslz4/)|ファイルをLZ4で圧縮|
 
 ## License
 
