@@ -277,6 +277,21 @@ void VGS::BGM::seekTo(int time, void (*callback)(int percent))
     vgsUnlock();
 }
 
+VGS::SoundEffect::SoundEffect()
+{
+    memset(&this->context, 0, sizeof(this->context));
+    this->context.masterVolume = 100;
+}
+
+void VGS::SoundEffect::play(const short* buffer, size_t size)
+{
+    vgsLock();
+    this->context.ptr = buffer;
+    this->context.count = size / 2;
+    this->context.cursor = 0;
+    vgsUnlock();
+}
+
 VGS::VGS()
 {
     this->halt = false;
@@ -309,6 +324,31 @@ void setup1()
     }
 }
 
+static inline void playSoundEffect(short* buffer, int count)
+{
+    if (!vgs.eff.context.ptr || vgs.eff.context.masterVolume < 1) {
+        return;
+    }
+    for (int i = 0; i < count; i++) {
+        int wav = buffer[i];
+        int snd = vgs.eff.context.ptr[vgs.eff.context.cursor];
+        snd *= vgs.eff.context.masterVolume;
+        snd /= 100;
+        wav += snd;
+        if (32767 < wav) {
+            wav = 32767;
+        } else if (wav < -32768) {
+            wav = -32768;
+        }
+        buffer[i] = (short)wav;
+        vgs.eff.context.cursor++;
+        if (vgs.eff.context.count <= vgs.eff.context.cursor) {
+            vgs.eff.context.ptr = nullptr;
+            return;
+        }
+    }
+}
+
 void loop1()
 {
     static int16_t buffer[2][VGS_BUFFER_SIZE];
@@ -320,9 +360,13 @@ void loop1()
         if (bgmLoaded && !vgs.bgm.isPaused()) {
             vgsLock();
             vgsdec.execute(buffer[1 - page], VGS_BUFFER_SIZE * 2);
+            playSoundEffect(buffer[1 - page], VGS_BUFFER_SIZE);
             vgsUnlock();
         } else {
             memset(buffer[1 - page], 0, VGS_BUFFER_SIZE * 2);
+            vgsLock();
+            playSoundEffect(buffer[1 - page], VGS_BUFFER_SIZE);
+            vgsUnlock();
         }
     }
     i2s.write16(buffer[page][index], buffer[page][index]);
