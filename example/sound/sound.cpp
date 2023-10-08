@@ -1,6 +1,6 @@
 #include "vgssdk.h"
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
 
 extern VGS vgs;
 extern const unsigned short smallFont[1216];
@@ -46,7 +46,7 @@ class Position
     {
         this->set(x, y, w, h);
     }
-    
+
     void set(int x, int y, int w, int h)
     {
         this->x = x;
@@ -98,7 +98,7 @@ extern "C" void vgs_loop()
                 vgs.eff.play(effData[i], effSize[i]);
                 break;
             }
-        }        
+        }
     }
 
     prevOn = vgs.io.touch.on;

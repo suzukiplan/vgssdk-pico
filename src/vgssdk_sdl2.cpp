@@ -487,7 +487,7 @@ void VGS::SoundEffect::play(const short* buffer, size_t size)
     SDL_LockAudioDevice(bgmAudioDeviceId);
     this->context.ptr = buffer;
     this->context.count = size / 2;
-    this->context.cursor = 0;    
+    this->context.cursor = 0;
     SDL_UnlockAudioDevice(bgmAudioDeviceId);
 }
 
