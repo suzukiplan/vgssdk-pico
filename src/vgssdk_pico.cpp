@@ -407,6 +407,7 @@ void setup()
 
     // initialize VGS
     vgs.bgm.setMasterVolume(16);
+    vgs.eff.setMasterVolume(16);
     vgs_setup();
 
     // LED off
