@@ -327,14 +327,42 @@ void VGS::GFX::push(int x, int y)
 static SDL_AudioDeviceID bgmAudioDeviceId;
 static bool bgmLoaded;
 
+static inline void playSoundEffect(VGS::SoundEffect* eff, short* buffer, int count)
+{
+    if (!eff->context.ptr || eff->context.masterVolume < 1) {
+        return;
+    }
+    for (int i = 0; i < count; i++) {
+        int wav = buffer[i];
+        int snd = eff->context.ptr[eff->context.cursor];
+        snd *= eff->context.masterVolume;
+        snd /= 100;
+        wav += snd;
+        if (32767 < wav) {
+            wav = 32767;
+        } else if (wav < -32768) {
+            wav = -32768;
+        }
+        buffer[i] = (short)wav;
+        eff->context.cursor++;
+        if (eff->context.count <= eff->context.cursor) {
+            eff->context.ptr = nullptr;
+            return;
+        }
+    }
+}
+
 static void bgmCallback(void* userdata, Uint8* stream, int len)
 {
+    auto eff = &((VGS*)userdata)->eff;
     if (bgmLoaded) {
-        auto bgm = (VGS::BGM*)userdata;
+        auto bgm = &((VGS*)userdata)->bgm;
         auto decoder = (VGSDecoder*)bgm->getContext();
         decoder->execute(stream, len);
+        playSoundEffect(eff, (short*)stream, len / 2);
     } else {
         memset(stream, 0, len);
+        playSoundEffect(eff, (short*)stream, len / 2);
     }
 }
 
@@ -448,6 +476,21 @@ int VGS::BGM::getIndex()
     return ((VGSDecoder*)this->context)->getIndex();
 }
 
+VGS::SoundEffect::SoundEffect()
+{
+    memset(&this->context, 0, sizeof(this->context));
+    this->context.masterVolume = 100;
+}
+
+void VGS::SoundEffect::play(const short* buffer, size_t size)
+{
+    SDL_LockAudioDevice(bgmAudioDeviceId);
+    this->context.ptr = buffer;
+    this->context.count = size / 2;
+    this->context.cursor = 0;    
+    SDL_UnlockAudioDevice(bgmAudioDeviceId);
+}
+
 VGS::VGS()
 {
     this->halt = false;
@@ -508,7 +551,7 @@ int main()
     desired.channels = 1;
     desired.samples = 2048;
     desired.callback = bgmCallback;
-    desired.userdata = &vgs.bgm;
+    desired.userdata = &vgs;
     bgmAudioDeviceId = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
     if (0 == bgmAudioDeviceId) {
         log(" ... SDL_OpenAudioDevice failed: %s", SDL_GetError());

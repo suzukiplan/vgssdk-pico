@@ -25,6 +25,7 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 - `VGS` ... メインコントローラ（シングルトン）
 - `VGS::GFX` ... 画面描画機能を提供するクラス
 - `VGS::BGM` ... VGS波形メモリ音源機能を提供するクラス
+- `VGS::SoundEffect` ... 効果音再生機能を提供するクラス　
 - `VGS::IO` ... 外部デバイス I/O 機能（タッチパネル+ゲームパッド）を提供するクラス
 
 アプリケーションは次のように実装します
@@ -50,12 +51,13 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 
 - `vgs.gfx` ... [VGS::GFX class](#vgsgfx-class) の インスタンス
 - `vgs.bgm` ... [VGS::BGM class](#vgsbgm-class) の インスタンス
+- `vgs.eff` ... [VGS::SoundEffect class](#vgssoundeffect-class) の インスタンス
 - `vgs.io` ... [VGS::IO class](#vgsio-class) の インスタンス
 
 ### `VGS::delay method`
 
 ```c++
-void delay(int ms);
+void VGS::delay(int ms);
 ```
 
 指定した時間（ミリ秒）待機する
@@ -63,7 +65,7 @@ void delay(int ms);
 ### `VGS::led method`
 
 ```c++
-void led(bool on);
+void VGS::led(bool on);
 ```
 
 本体 LED の点灯・消灯
@@ -71,7 +73,7 @@ void led(bool on);
 ### `VGS::setFrameRate method`
 
 ```c++
-void setFrameRate(int frameRate);
+void VGS::setFrameRate(int frameRate);
 ```
 
 - シミュレータが動作するフレームレートを指定します
@@ -83,7 +85,7 @@ void setFrameRate(int frameRate);
 ### `VGS::getFrameRate method`
 
 ```c++
-int getFrameRate();
+int VGS::getFrameRate();
 ```
 
 - `VGS::setFrameRate` で指定したフレームレート（補正値）を取得します
@@ -109,7 +111,7 @@ VGS::GFX(int width, int height);
 ### `VGS::GFX::startWrite method`
 
 ```c++
-void startWrite();
+void VGS::GFX::startWrite();
 ```
 
 - 描画の開始時に呼び出します
@@ -118,7 +120,7 @@ void startWrite();
 ### `VGS::GFX::endWrite method`
 
 ```c++
-void endWrite();
+void VGS::GFX::endWrite();
 ```
 
 - 描画の終了時に呼び出します
@@ -128,7 +130,7 @@ void endWrite();
 ### `VGS::GFX::getWidth method`
 
 ```c++
-int getWidth();
+int VGS::GFX::getWidth();
 ```
 
 - 画面の横幅を取得します
@@ -139,7 +141,7 @@ int getWidth();
 ### `VGS::GFX::getHeight method`
 
 ```c++
-int getHeight();
+int VGS::GFX::getHeight();
 ```
 
 - 画面の縦幅を取得します
@@ -151,7 +153,7 @@ int getHeight();
 ### `VGS::GFX::clear method`
 
 ```c++
-void clear(unsigned short color = 0);
+void VGS::GFX::clear(unsigned short color = 0);
 ```
 
 - 画面を指定した色（RGB565形式）でクリアします
@@ -160,7 +162,7 @@ void clear(unsigned short color = 0);
 ### `VGS::GFX::setViewport method`
 
 ```c++
-void setViewport(int x, int y, int width, int height);
+void VGS::GFX::setViewport(int x, int y, int width, int height);
 ```
 
 - 描画可能範囲（viewport）を設定します
@@ -169,7 +171,7 @@ void setViewport(int x, int y, int width, int height);
 ### `VGS::GFX::clearViewport method`
 
 ```c++
-void clearViewport();
+void VGS::GFX::clearViewport();
 ```
 
 描画可能範囲（viewport）の設定をクリアします
@@ -177,7 +179,7 @@ void clearViewport();
 ### `VGS::GFX::pixel method`
 
 ```c++
-void pixel(int x, int y, unsigned short color);
+void VGS::GFX::pixel(int x, int y, unsigned short color);
 ```
 
 指定座標 (x, y) に指定した色（RGB565形式）のドットを描画します
@@ -185,7 +187,7 @@ void pixel(int x, int y, unsigned short color);
 ### `VGS::GFX::lineV method`
 
 ```c++
-void lineV(int x1, int y1, int height, unsigned short color);
+void VGS::GFX::lineV(int x1, int y1, int height, unsigned short color);
 ```
 
 指定座標 (x, y) から指定した高さ（height）と色（RGB565形式）の縦線を描画します
@@ -193,7 +195,7 @@ void lineV(int x1, int y1, int height, unsigned short color);
 ### `VGS::GFX::lineH method`
 
 ```c++
-void lineH(int x1, int y1, int width, unsigned short color);
+void VGS::GFX::lineH(int x1, int y1, int width, unsigned short color);
 ```
 
 指定座標 (x, y) から指定した幅（width）と色（RGB565形式）の横線を描画します
@@ -201,7 +203,7 @@ void lineH(int x1, int y1, int width, unsigned short color);
 ### `VGS::GFX::line method`
 
 ```c++
-void line(int x1, int y1, int x2, int y2, unsigned short color);
+void VGS::GFX::line(int x1, int y1, int x2, int y2, unsigned short color);
 ```
 
 - 指定座標 (x, y) から (x2, y2) に指定した色（RGB565形式）の線を描画します
@@ -211,7 +213,7 @@ void line(int x1, int y1, int x2, int y2, unsigned short color);
 ### `VGS::GFX::box method`
 
 ```c++
-void box(int x, int y, int width, int height, unsigned short color);
+void VGS::GFX::box(int x, int y, int width, int height, unsigned short color);
 ```
 
 指定座標 (x, y) から (x2, y2) に指定した色（RGB565形式）の矩形を描画します
@@ -219,7 +221,7 @@ void box(int x, int y, int width, int height, unsigned short color);
 ### `VGS::GFX::boxf method`
 
 ```c++
-void boxf(int x, int y, int width, int height, unsigned short color);
+void VGS::GFX::boxf(int x, int y, int width, int height, unsigned short color);
 ```
 
 指定座標 (x, y) から (x2, y2) に指定した色（RGB565形式）の塗りつぶし矩形を描画します
@@ -228,10 +230,10 @@ void boxf(int x, int y, int width, int height, unsigned short color);
 
 ```c++
 // normal
-void image(int x, int y, int width, int height, const unsigned short* buffer);
+void VGS::GFX::image(int x, int y, int width, int height, const unsigned short* buffer);
 
 // with transpanrent color
-void image(int x, int y, int width, int height, const unsigned short* buffer, unsigned short transparent)
+void VGS::GFX::image(int x, int y, int width, int height, const unsigned short* buffer, unsigned short transparent)
 ```
 
 - bitmap 形式のイメージを指定座標 (x, y) に描画します
@@ -241,7 +243,7 @@ void image(int x, int y, int width, int height, const unsigned short* buffer, un
 ### `VGS::GFX::push method`
 
 ```c++
-void push(int x, int y);
+void VGS::GFX::push(int x, int y);
 ```
 
 仮想ディスプレイの内容を物理ディスプレイの指定座標 (x, y) に描画します
@@ -251,7 +253,7 @@ void push(int x, int y);
 ### `VGS::BGM::pause method`
 
 ```c++
-void pause();
+void VGS::BGM::pause();
 ```
 
 BGM の再生をポーズ
@@ -259,7 +261,7 @@ BGM の再生をポーズ
 ### `VGS::BGM::resume method`
 
 ```c++
-void resume();
+void VGS::BGM::resume();
 ```
 
 BGM の再生を再開
@@ -267,7 +269,7 @@ BGM の再生を再開
 ### `VGS::BGM::isPaused method`
 
 ```c++
-bool isPaused();
+bool VGS::BGM::isPaused();
 ```
 
 BGM の再生がポーズ中かチェック
@@ -275,7 +277,7 @@ BGM の再生がポーズ中かチェック
 ### `VGS::BGM::load method`
 
 ```c++
-void load(const void* buffer, size_t size);
+void VGS::BGM::load(const void* buffer, size_t size);
 ```
 
 LZ4 で圧縮された VGS の可変方式 BGM データファイルを読み込む
@@ -289,7 +291,7 @@ LZ4 で圧縮された VGS の可変方式 BGM データファイルを読み込
 ### `VGS::BGM::getMasterVolume method`
 
 ```c++
-int getMasterVolume();
+int VGS::BGM::getMasterVolume();
 ```
 
 マスターボリュームを取得する
@@ -297,7 +299,7 @@ int getMasterVolume();
 ### `VGS::BGM::setMasterVolume method`
 
 ```c++
-void setMasterVolume(int masterVolume);
+void VGS::BGM::setMasterVolume(int masterVolume);
 ```
 
 マスターボリューム（0〜100）を設定する
@@ -305,7 +307,7 @@ void setMasterVolume(int masterVolume);
 ### `VGS::BGM::fadeout`
 
 ```c++
-void fadeout();
+void VGS::BGM::fadeout();
 ```
 
 再生中の BGM をフェードアウトする
@@ -313,15 +315,16 @@ void fadeout();
 ### `VGS::BGM::isPlayEnd`
 
 ```c++
-bool isPlayEnd();
+bool VGS::BGM::isPlayEnd();
 ```
 
-BGM の再生が終了しているかチェック
+- BGM の再生が終了しているかチェック
+- 本メソッドは一度セット状態（true）を返すと、次に再生したBGMが終了するまで false を返し続けます
 
 ### `VGS::BGM::getLoopCount`
 
 ```c++
-int getLoopCount();
+int VGS::BGM::getLoopCount();
 ```
 
 現在のループ回数を取得
@@ -329,7 +332,7 @@ int getLoopCount();
 ### `VGS::BGM::getTone`
 
 ```c++
-unsigned char getTone(int cn);
+unsigned char VGS::BGM::getTone(int cn);
 ```
 
 チャンネル（0〜5）の音色番号を取得
@@ -342,7 +345,7 @@ unsigned char getTone(int cn);
 ### `VGS::BGM::getKey`
 
 ```c++
-unsigned char getKey(int cn);
+unsigned char VGS::BGM::getKey(int cn);
 ```
 
 - チャンネル（0〜5）の音程を取得
@@ -383,6 +386,34 @@ unsigned int getInde();
 
 現在の BGM の再生位置（バイト単位）を返す
 
+## `VGS::SoundEffect class`
+
+### `VGS::SoundEffect::play method`
+
+```c++
+void VGS::SoundEffect::play(const short* buffer, int count);
+```
+
+- 効果音を再生する
+- `buffer` には 22050Hz, 16bits, モノラル の PCM データを指定
+- `count` には `buffer` の要素数（バイト数÷2）を指定
+
+### `VGS::SoundEffect::getMasterVolume method`
+
+```c++
+int VGS::SoundEffect::getMasterVolume();
+```
+
+マスターボリュームを取得する
+
+### `VGS::SoundEffect::setMasterVolume method`
+
+```c++
+void VGS::SoundEffect::setMasterVolume(int masterVolume);
+```
+
+マスターボリューム（0〜100）を設定する
+
 ## `VGS::IO class`
 
 [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)がサポートする入出力機器は次の通りです:
@@ -395,7 +426,7 @@ unsigned int getInde();
 ### `VGS::IO::joypad structure` <WIP>
 
 ```c++
-struct Joypad {
+struct VGS::IO::Joypad {
     bool up;
     bool down;
     bool left;
@@ -410,7 +441,7 @@ struct Joypad {
 ### `VGS::IO::touch structure`
 
 ```c++
-struct Touch {
+struct VGS::IO::Touch {
     bool on;
     int x;
     int y;

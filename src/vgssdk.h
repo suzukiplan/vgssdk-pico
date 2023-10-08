@@ -86,6 +86,22 @@ class VGS
         int getIndex();
     };
 
+    class SoundEffect
+    {
+      public:
+        struct Context {
+            const short* ptr;
+            int count;
+            int cursor;
+            int masterVolume;
+        } context;
+
+        SoundEffect();
+        void play(const short* buffer, size_t size);
+        inline int getMasterVolume() { return this->context.masterVolume; }
+        inline void setMasterVolume(int masterVolume) { this->context.masterVolume = masterVolume; }
+    };
+
     class IO
     {
       public:
@@ -120,6 +136,7 @@ class VGS
     ~VGS();
     VGS::GFX gfx;
     VGS::BGM bgm;
+    VGS::SoundEffect eff;
     VGS::IO io;
     void delay(int ms);
     void led(bool on);
