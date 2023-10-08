@@ -391,12 +391,12 @@ unsigned int getInde();
 ### `VGS::SoundEffect::play method`
 
 ```c++
-void VGS::SoundEffect::play(const short* buffer, int count);
+void VGS::SoundEffect::play(const short* buffer, size_t size);
 ```
 
 - 効果音を再生する
 - `buffer` には 22050Hz, 16bits, モノラル の PCM データを指定
-- `count` には `buffer` の要素数（バイト数÷2）を指定
+- `size` には `buffer` のサイズ（バイト数）を指定
 
 ### `VGS::SoundEffect::getMasterVolume method`
 
