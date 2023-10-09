@@ -38,7 +38,7 @@
 
 VGS vgs;
 static VGSDecoder vgsdec;
-static TFT_eSPI tft(VGS_DISPLAY_WIDTH, VGS_DISPLAY_HEIGHT);
+static TFT_eSPI tft(240, 320);
 static FT6336U ctp(&Wire, CTP_SDA, CTP_SCL, CTP_RST, CTP_INT);
 static I2S i2s(OUTPUT);
 static semaphore_t vgsSemaphore;
@@ -129,7 +129,7 @@ void VGS::GFX::clearViewport()
     if (this->isVirtual()) {
         ((TFT_eSprite*)this->vDisplay.buffer)->setViewport(0, 0, this->vDisplay.width, this->vDisplay.height);
     } else {
-        tft.setViewport(0, 0, this->display.width, this->display.height);
+        tft.setViewport(0, 0, VGS_DISPLAY_WIDTH, VGS_DISPLAY_HEIGHT);
     }
 }
 
@@ -441,13 +441,13 @@ void loop()
     vgs.io.touch.y = ctp.status.y;
 #elif VGSGFX_ROTATION == 1
     vgs.io.touch.x = ctp.status.y;
-    vgs.io.touch.y = ctp.status.x;
+    vgs.io.touch.y = 239 - ctp.status.x;
 #elif VGSGFX_ROTATION == 2
     vgs.io.touch.x = 239 - ctp.status.x;
     vgs.io.touch.y = 319 - ctp.status.y;
 #elif VGSGFX_ROTATION == 3
     vgs.io.touch.x = 319 - ctp.status.y;
-    vgs.io.touch.y = 239 - ctp.status.x;
+    vgs.io.touch.y = ctp.status.x;
 #endif
     vgs_loop();
 }
