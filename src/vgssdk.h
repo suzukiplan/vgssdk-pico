@@ -58,6 +58,39 @@ class VGS
         void push(int x, int y);
     };
 
+    class VDP
+    {
+      public:
+        typedef struct Display {
+            unsigned short buf[240*320]; // 150KB
+            int width; // 240 or 320
+            int height; // 320 or 240
+        } Display;
+
+        typedef struct OAM_ {
+            int x;
+            int y;
+            unsigned char ptn;
+            unsigned char attr;
+        } OAM;
+
+        typedef struct RAM_ {
+            unsigned char bg[4096]; // BG name table: 64x64 (scrollable)
+            unsigned char fg[1200]; // FG name table: 30x40 or 40x30 (cannot scroll)
+            int bgScrollX; // BG scroll (X)
+            int bgScrollY; // BG scroll (Y)
+            struct OAM oam[256]; // object attribute memory (sprites)
+            unsigned char ptn[256][64]; // character pattern (8x8 x 256)
+            unsigned short pal[16]; // palette table
+        } RAM;
+
+        Display* display;
+        RAM* vram;
+
+        void begin();
+        void execute();
+    };
+
     class BGM
     {
       private:
@@ -136,6 +169,7 @@ class VGS
     ~VGS();
     VGS::GFX gfx;
     VGS::BGM bgm;
+    VGS::VDP vdp;
     VGS::SoundEffect eff;
     VGS::IO io;
     void delay(int ms);
