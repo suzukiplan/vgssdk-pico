@@ -44,6 +44,10 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 |Compile Flag|Description|
 |:-:|:-|
 |`-DVGSBGM_LIMIT_SIZE=数値`|BGMの非圧縮サイズ上限を KB 単位で指定（省略時: 108KB）|
+|`-DVGSGFX_ROTATION=0`|画面の向きを Portrait にする|
+|`-DVGSGFX_ROTATION=1`|画面の向きを Landscape にする|
+|`-DVGSGFX_ROTATION=2`|画面の向きを Reverse Portrait にする __(省略時のデフォルト)__|
+|`-DVGSGFX_ROTATION=3`|画面の向きを Reverse Landscape にする|
 
 ## `VGS class`
 

@@ -21,7 +21,7 @@ extern "C" void vgs_loop()
             c <<= 6;
             c |= i;
             c |= 0x0020;
-            vgs.gfx.pixel(rand() % 240, rand() % 320, c);
+            vgs.gfx.pixel(rand() % vgs.gfx.getWidth(), rand() % vgs.gfx.getHeight(), c);
         }
     }
     vgs.gfx.endWrite();

@@ -12,8 +12,25 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifndef VGSGFX_ROTATION
+#define VGSGFX_ROTATION 2 // default = reverse portrait
+#endif
+
+#if VGSGFX_ROTATION == 0
 #define VGS_DISPLAY_WIDTH 240
 #define VGS_DISPLAY_HEIGHT 320
+#elif VGSGFX_ROTATION == 1
+#define VGS_DISPLAY_WIDTH 320
+#define VGS_DISPLAY_HEIGHT 240
+#elif VGSGFX_ROTATION == 2
+#define VGS_DISPLAY_WIDTH 240
+#define VGS_DISPLAY_HEIGHT 320
+#define REVERSE_SCREEN
+#elif VGSGFX_ROTATION == 3
+#define VGS_DISPLAY_WIDTH 320
+#define VGS_DISPLAY_HEIGHT 240
+#define REVERSE_SCREEN
+#endif
 
 #define abs_(x) (x >= 0 ? (x) : -(x))
 #define sgn_(x) (x >= 0 ? (1) : (-1))

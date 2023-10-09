@@ -67,8 +67,9 @@ extern "C" void vgs_setup()
 {
     vgs.gfx.startWrite();
     vgs.gfx.clear(0);
+    auto w = (vgs.get.width() - 24) / 3;
     for (int i = 0; i < 3; i++) {
-        pos[i].set(16 + i * 72, 8, 64, 32);
+        pos[i].set(8 + i * (w + 8), 8, w, 32);
         vgs.gfx.boxf(pos[i].x, pos[i].y, pos[i].w, pos[i].h, 0x0007);
         vgs.gfx.box(pos[i].x, pos[i].y, pos[i].w, pos[i].h, 0xFFFF);
         printSmallFont(pos[i].x + (pos[i].w - 36) / 2, pos[i].y + (pos[i].h - 8) / 2, "PLAY EFF%d", i + 1);
