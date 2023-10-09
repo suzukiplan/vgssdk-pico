@@ -15,6 +15,6 @@ extern "C" void vgs_setup()
 extern "C" void vgs_loop()
 {
     vgs.gfx.startWrite();
-    vgs.gfx.image(rand() % (vgs.gfx.getWidth() - 16), rand() % (vgs.gfx.getHeight - 16), 16, 16, imageTestData);
+    vgs.gfx.image(rand() % (vgs.gfx.getWidth() - 16), rand() % (vgs.gfx.getHeight() - 16), 16, 16, imageTestData);
     vgs.gfx.endWrite();
 }

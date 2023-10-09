@@ -13,6 +13,7 @@ copy:
 	rm -rf ./src
 	mkdir ./src
 	cp -p ../platformio.ini ./
+	cd ../.. && make roms
 	cp -p ../../src/lz4.c ./src
 	cp -p ../../src/lz4.h ./src
 	cp -p ../../src/vgsdecv.hpp ./src
@@ -21,8 +22,10 @@ copy:
 	cp -p ../../src/vgstone.c ./src
 	cp -p ../../src/FT6336U.hpp ./src
 	cp -p ../../example/sound/small_font.c ./src
-	cp -p ../../example/sound/bgm_test_data.c ./src
+	cp -p ../../example/sound/bgm.c ./src
 	cp -p ../../example/sound/eff1.c ./src
 	cp -p ../../example/sound/eff2.c ./src
 	cp -p ../../example/sound/eff3.c ./src
 	cp -p ../../example/sound/sound.cpp ./src
+	cp -p ../../example/sound/roms.hpp ./src
+
