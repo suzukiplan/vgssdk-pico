@@ -1,5 +1,5 @@
-#include "vgssdk.h"
 #include "roms.hpp"
+#include "vgssdk.h"
 #include <stdarg.h>
 #include <stdio.h>
 

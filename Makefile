@@ -53,11 +53,12 @@ format:
 	make execute-format FILENAME=./example/image/image.cpp
 	make execute-format FILENAME=./example/sound/sound.cpp
 	make execute-format FILENAME=./example/sandstorm/sandstorm.cpp
+	make execute-format FILENAME=./src/FT6336U.hpp
 	make execute-format FILENAME=./src/vgssdk_sdl2.cpp
 	make execute-format FILENAME=./src/vgssdk_pico.cpp
 	make execute-format FILENAME=./src/vgssdk.h
 	make execute-format FILENAME=./src/vgsdecv.hpp
-        
+
 execute-format:
 	clang-format -style=file < ${FILENAME} > ${FILENAME}.bak
 	cat ${FILENAME}.bak > ${FILENAME}
