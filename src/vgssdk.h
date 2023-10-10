@@ -94,6 +94,7 @@ class VGS
         inline void setScrollY(int y) { this->vram->scrollX = y; }
         inline void addScrollX(int ax) { this->vram->scrollX += ax; }
         inline void addScrollY(int ay) { this->vram->scrollX += ay; }
+        inline void setBg(int x, int y, unsigned char ptn) { this->vram->bg[x & 0x3F][y & 0x3F] = ptn; }
 
         inline void setScroll(int x, int y)
         {
@@ -105,6 +106,12 @@ class VGS
         {
             this->addScrollX(ax);
             this->addScrollY(ay);
+        }
+
+        inline void setBg(int index, unsigned char ptn)
+        {
+            index &= 0x0FFF;
+            this->setBg(index & 0x3F, index / 64, ptn);
         }
 
         inline void setOam(unsigned char index,

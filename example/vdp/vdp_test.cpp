@@ -37,6 +37,11 @@ extern "C" void vgs_setup()
     // VDP のパターンエリアに画像を読み込む
     memcpy(vgs.vdp.vram->ptn, rom_vram_ptn, sizeof(rom_vram_ptn));
 
+    // ネームテーブルにパターン番号を設定
+    for (int i = 0; i < 4096; i++) {
+        vgs.vdp.setBg(i, i % 7);
+    }
+
     // スプライト（VDP）で HELLO,WORLD! を描画
     const char* str = "HELLO,WORLD!";
     int x = (vgs.vdp.getWidth() - strlen(str) * 8) / 2;
