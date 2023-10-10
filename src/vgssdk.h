@@ -108,9 +108,9 @@ class VGS
         }
 
         inline void setOam(unsigned char index,
-                           unsigned char ptn,
                            int x = 0,
                            int y = 0,
+                           unsigned char ptn = 0,
                            unsigned char user0 = 0,
                            unsigned char user1 = 0,
                            unsigned char user2 = 0)

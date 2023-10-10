@@ -43,12 +43,12 @@ extern "C" void vgs_setup()
     int y = (vgs.vdp.getHeight() - 8) / 2;
     unsigned char n = 0;
     for (; str[n]; n++, x += 8) {
-        vgs.vdp.setOam(n, str[n], x, y);
+        vgs.vdp.setOam(n, x, y, str[n]);
     }
 
     // 残りのスプライトは画面上を動くボールにする
     for (; n; n++) {
-        vgs.vdp.setOam(n, 16 + rand() % 8, rand() % (vgs.vdp.getWidth() - 8), rand() % (vgs.vdp.getHeight() - 8));
+        vgs.vdp.setOam(n, rand() % (vgs.vdp.getWidth() - 8), rand() % (vgs.vdp.getHeight() - 8), 16 + rand() % 8);
     }
 
     // VDP 外部の領域に適当なグリッド線を描画しておく
