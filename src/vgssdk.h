@@ -62,9 +62,9 @@ class VGS
     {
       public:
         typedef struct Display {
-            unsigned short buf[240*320]; // 150KB
-            int width; // 240 or 320
-            int height; // 320 or 240
+            unsigned short* buf; // width x height x 2 bytes
+            int width;
+            int height;
         } Display;
 
         typedef struct OAM_ {
@@ -75,19 +75,21 @@ class VGS
         } OAM;
 
         typedef struct RAM_ {
-            unsigned char bg[4096]; // BG name table: 64x64 (scrollable)
-            unsigned char fg[1200]; // FG name table: 30x40 or 40x30 (cannot scroll)
-            int bgScrollX; // BG scroll (X)
-            int bgScrollY; // BG scroll (Y)
-            struct OAM oam[256]; // object attribute memory (sprites)
-            unsigned char ptn[256][64]; // character pattern (8x8 x 256)
-            unsigned short pal[16]; // palette table
+            unsigned char bg[4096];     // BG name table: 64x64
+            unsigned char fg[4096];     // FG name table: 64x64
+            int bgScrollX;              // BG scroll (X)
+            int bgScrollY;              // BG scroll (Y)
+            int fgScrollX;              // FG scroll (X)
+            int fgScrollY;              // FG scroll (Y)
+            OAM oam[256];               // object attribute memory (sprites)
+            unsigned char ptn[256][64]; // character pattern (8x8 x 256 bytes = 128x128px)
+            unsigned short pal[256];    // palette table
         } RAM;
 
         Display* display;
         RAM* vram;
 
-        void begin();
+        bool begin(int width, int height);
         void execute();
     };
 

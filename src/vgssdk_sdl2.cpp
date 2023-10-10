@@ -38,6 +38,8 @@
 VGS vgs;
 static SDL_Window* window;
 static SDL_Surface* windowSurface;
+static unsigned short vdp_display_buf[65536];
+static VGS::VDP::RAM vdp_vram;
 
 static void log(const char* format, ...)
 {
@@ -339,6 +341,30 @@ void VGS::GFX::push(int x, int y)
             vgs.gfx.pixel(x + xx, y + yy, this->getVirtualBuffer()[ptr++]);
         }
     }
+}
+
+bool VGS::VDP::begin(int width, int height)
+{
+    if (sizeof(vdp_display_buf) < width * height * 2) {
+        return false;
+    }
+    this->display = (VDP::Display*)malloc(sizeof(VDP::Display));
+    if (!this->display) {
+        return false;
+    }
+    memset(this->display, 0, sizeof(VDP::Display));
+    this->display->width = width;
+    this->display->height = height;
+    this->display->buf = vdp_display_buf;
+    this->vram = &vdp_vram;
+    memset(this->vram, 0, sizeof(VDP::RAM));
+    return true;
+}
+
+void VGS::VDP::execute()
+{
+    // TODO: VRAM -> DISPLAY
+    memset(this->display->buf, 0x0F, this->display->width * this->display->height * 2);
 }
 
 static SDL_AudioDeviceID bgmAudioDeviceId;
