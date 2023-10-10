@@ -5,9 +5,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-extern "C" {
-extern const unsigned short rom_small_font[1216]; // small_font.c
-};
 extern VGS vgs;
 
 static void printSmallFont(int x, int y, const char* format, ...)
@@ -56,7 +53,6 @@ extern "C" void vgs_setup()
         vgs.vdp.vram->oam[n].ptn = 16 + rand() % 8;
         vgs.vdp.vram->oam[n].x = rand() % (vgs.vdp.getWidth() - 8);
         vgs.vdp.vram->oam[n].y = rand() % (vgs.vdp.getHeight() - 8);
-        vgs.vdp.vram->oam[n].user[0] = 1 + rand() % 16;
     }
 
     // VDP 外部の領域に適当なグリッド線を描画しておく
@@ -95,7 +91,7 @@ extern "C" void vgs_loop()
     prevTouch = vgs.io.touch.on;
 
     // ボールを下に落とす
-    for (int i = 13; i < 256; i++) {
+    for (int i = 12; i < 256; i++) {
         auto oam = &vgs.vdp.vram->oam[i];
         oam->ptn++;
         oam->ptn &= 0x0F;
