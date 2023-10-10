@@ -89,6 +89,7 @@ class VGS
         void render(int x, int y);
         inline int getWidth() { return this->display.width; }
         inline int getHeight() { return this->display.height; }
+        inline OAM* getOam(unsigned char index) { return &this->vram->oam[index]; }
 
         inline void setOam(unsigned char index,
                            unsigned char ptn,

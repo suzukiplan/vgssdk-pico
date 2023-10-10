@@ -87,8 +87,8 @@ extern "C" void vgs_loop()
     prevTouch = vgs.io.touch.on;
 
     // ボールを下に落とす
-    for (int i = 12; i < 256; i++) {
-        auto oam = &vgs.vdp.vram->oam[i];
+    for (unsigned char i = 12; i; i++) {
+        auto oam = vgs.vdp.getOam(i);
         oam->ptn++;
         oam->ptn &= 0x0F;
         oam->ptn |= 0x10;
