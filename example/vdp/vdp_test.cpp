@@ -41,18 +41,14 @@ extern "C" void vgs_setup()
     const char* str = "HELLO,WORLD!";
     int x = (vgs.vdp.getWidth() - strlen(str) * 8) / 2;
     int y = (vgs.vdp.getHeight() - 8) / 2;
-    int n = 0;
+    unsigned char n = 0;
     for (; str[n]; n++, x += 8) {
-        vgs.vdp.vram->oam[n].ptn = (unsigned char)str[n];
-        vgs.vdp.vram->oam[n].x = x;
-        vgs.vdp.vram->oam[n].y = y;
+        vgs.vdp.setOam(n, str[n], x, y);
     }
 
     // 残りのスプライトは画面上を動くボールにする
-    for (; n < 256; n++) {
-        vgs.vdp.vram->oam[n].ptn = 16 + rand() % 8;
-        vgs.vdp.vram->oam[n].x = rand() % (vgs.vdp.getWidth() - 8);
-        vgs.vdp.vram->oam[n].y = rand() % (vgs.vdp.getHeight() - 8);
+    for (; n; n++) {
+        vgs.vdp.setOam(n, 16 + rand() % 8, rand() % (vgs.vdp.getWidth() - 8), rand() % (vgs.vdp.getHeight() - 8));
     }
 
     // VDP 外部の領域に適当なグリッド線を描画しておく

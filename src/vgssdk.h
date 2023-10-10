@@ -90,6 +90,22 @@ class VGS
         inline int getWidth() { return this->display.width; }
         inline int getHeight() { return this->display.height; }
 
+        inline void setOam(unsigned char index,
+                           unsigned char ptn,
+                           int x = 0,
+                           int y = 0,
+                           unsigned char user0 = 0,
+                           unsigned char user1 = 0,
+                           unsigned char user2 = 0)
+        {
+            this->vram->oam[index].ptn = ptn;
+            this->vram->oam[index].x = x;
+            this->vram->oam[index].y = y;
+            this->vram->oam[index].user[0] = user0;
+            this->vram->oam[index].user[1] = user1;
+            this->vram->oam[index].user[2] = user2;
+        }
+
       private:
         inline void renderBg(int x, int y, unsigned char ptn)
         {
