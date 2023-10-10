@@ -91,9 +91,9 @@ class VGS
         inline int getHeight() { return this->display.height; }
         inline OAM* getOam(unsigned char index) { return &this->vram->oam[index]; }
         inline void setScrollX(int x) { this->vram->scrollX = x; }
-        inline void setScrollY(int y) { this->vram->scrollX = y; }
+        inline void setScrollY(int y) { this->vram->scrollY = y; }
         inline void addScrollX(int ax) { this->vram->scrollX += ax; }
-        inline void addScrollY(int ay) { this->vram->scrollX += ay; }
+        inline void addScrollY(int ay) { this->vram->scrollY += ay; }
         inline void setBg(int x, int y, unsigned char ptn) { this->vram->bg[x & 0x3F][y & 0x3F] = ptn; }
 
         inline void setScroll(int x, int y)
