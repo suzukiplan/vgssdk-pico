@@ -90,6 +90,22 @@ class VGS
         inline int getWidth() { return this->display.width; }
         inline int getHeight() { return this->display.height; }
         inline OAM* getOam(unsigned char index) { return &this->vram->oam[index]; }
+        inline void setScrollX(int x) { this->vram->scrollX = x; }
+        inline void setScrollY(int y) { this->vram->scrollX = y; }
+        inline void addScrollX(int ax) { this->vram->scrollX += ax; }
+        inline void addScrollY(int ay) { this->vram->scrollX += ay; }
+
+        inline void setScroll(int x, int y)
+        {
+            this->setScrollX(x);
+            this->setScrollY(y);
+        }
+
+        inline void addScroll(int ax, int ay)
+        {
+            this->addScrollX(ax);
+            this->addScrollY(ay);
+        }
 
         inline void setOam(unsigned char index,
                            unsigned char ptn,

@@ -82,8 +82,7 @@ extern "C" void vgs_loop()
         sx = rand() % 6 - 3;
         sy = rand() % 6 - 3;
     }
-    vgs.vdp.vram->scrollX += sx; // scroll X
-    vgs.vdp.vram->scrollY += sy; // scroll Y
+    vgs.vdp.addScroll(sx, sy);
     prevTouch = vgs.io.touch.on;
 
     // ボールを下に落とす
