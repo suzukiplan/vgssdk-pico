@@ -1,6 +1,8 @@
+#include "roms.hpp"
 #include "vgssdk.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
 extern "C" {
@@ -32,11 +34,34 @@ static void printSmallFont(int x, int y, const char* format, ...)
 
 extern "C" void vgs_setup()
 {
-    vgs.vdp.begin(192, 240);
+    // 領域サイズ 192x240 ピクセルの VDP を作成
+    vgs.vdp.create(192, 240);
+
+    // VDP のパターンエリアに画像を読み込む
+    memcpy(vgs.vdp.vram->ptn, rom_vram_ptn, sizeof(rom_vram_ptn));
+
+    // スプライト（VDP）で HELLO,WORLD! を描画
+    const char* str = "HELLO,WORLD!";
+    int x = (vgs.vdp.getWidth() - strlen(str) * 8) / 2;
+    int y = (vgs.vdp.getHeight() - 8) / 2;
+    int n = 0;
+    for (; str[n]; n++, x += 8) {
+        vgs.vdp.vram->oam[n].ptn = (unsigned char)str[n];
+        vgs.vdp.vram->oam[n].x = x;
+        vgs.vdp.vram->oam[n].y = y;
+    }
+
+    // 残りのスプライトは画面上を動くボールにする
+    for (; n < 256; n++) {
+        vgs.vdp.vram->oam[n].ptn = 16 + rand() % 8;
+        vgs.vdp.vram->oam[n].x = rand() % (vgs.vdp.getWidth() - 8);
+        vgs.vdp.vram->oam[n].y = rand() % (vgs.vdp.getHeight() - 8);
+        vgs.vdp.vram->oam[n].user[0] = 1 + rand() % 16;
+    }
+
+    // VDP 外部の領域に適当なグリッド線を描画しておく
     vgs.gfx.startWrite();
     vgs.gfx.clear(0);
-
-    // render grid
     for (int y = 0; y < vgs.gfx.getHeight(); y += 8) {
         for (int x = 0; x < vgs.gfx.getWidth(); x += 8) {
             vgs.gfx.lineH(x, y, 8, 0x001F);
@@ -45,28 +70,51 @@ extern "C" void vgs_setup()
             vgs.gfx.lineV(x + 7, y, 8, 0x0007);
         }
     }
-
     vgs.gfx.endWrite();
+
+    // macOS or Linux（シミュレータ）は 20fps で動かす
+    // ※実機（RP2040）は全力でブン回す
+    vgs.setFrameRate(20);
 }
 
 extern "C" void vgs_loop()
 {
     static int fps = 0;
     static time_t prevTime = time(nullptr);
+    static bool prevTouch = false;
+    static int sx = 0;
+    static int sy = 1;
 
-    // VRAM -> VDP display
-    vgs.vdp.execute();
+    // 画面をタップしたらスクロールの方向をランダムで変更
+    if (vgs.io.touch.on && !prevTouch) {
+        sx = rand() % 6 - 3;
+        sy = rand() % 6 - 3;
+    }
+    vgs.vdp.vram->scrollX += sx; // scroll X
+    vgs.vdp.vram->scrollY += sy; // scroll Y
+    prevTouch = vgs.io.touch.on;
 
+    // ボールを下に落とす
+    for (int i = 13; i < 256; i++) {
+        auto oam = &vgs.vdp.vram->oam[i];
+        oam->ptn++;
+        oam->ptn &= 0x0F;
+        oam->ptn |= 0x10;
+        oam->y += 3;
+        if (vgs.vdp.getHeight() < oam->y) {
+            oam->x = rand() % (vgs.vdp.getWidth() - 8);
+            oam->y = -8;
+        }
+    }
+
+    // start rendering
     vgs.gfx.startWrite();
 
-    // VDP display -> LCD
-    vgs.gfx.image((vgs.gfx.getWidth() - vgs.vdp.display->width) / 2,
-                  (vgs.gfx.getHeight() - vgs.vdp.display->height) / 2,
-                  vgs.vdp.display->width,
-                  vgs.vdp.display->height,
-                  vgs.vdp.display->buf);
+    // VDP の VRAM の内容を LCD の指定座標に描画
+    vgs.vdp.render((vgs.gfx.getWidth() - vgs.vdp.getWidth()) / 2,
+                   (vgs.gfx.getHeight() - vgs.vdp.getHeight()) / 2);
 
-    // render frame rate
+    // 1秒間に何フレーム描画できたか表示
     fps++;
     auto now = time(nullptr);
     if (now != prevTime) {
@@ -77,5 +125,6 @@ extern "C" void vgs_loop()
         prevTime = now;
     }
 
+    // end rendering
     vgs.gfx.endWrite();
 }

@@ -7,7 +7,7 @@ OBJECTS_TOUCH = touch.o ${OBJECTS_SDK}
 OBJECTS_IMAGE = image.o image_test_data.o ${OBJECTS_SDK}
 OBJECTS_SOUND = sound.o bgm.o small_font.o eff1.o eff2.o eff3.o ${OBJECTS_SDK}
 OBJECTS_SANDSTORM = sandstorm.o ${OBJECTS_SDK}
-OBJECTS_VDP = vdp_test.o small_font.o ${OBJECTS_SDK}
+OBJECTS_VDP = vdp_test.o small_font.o vram_ptn.o ${OBJECTS_SDK}
 
 all:
 	make roms
@@ -30,6 +30,8 @@ roms:
 	./tools/vgslz4/vgslz4 ./example/sound/bgm.ftv ./example/sound/bgm.lz4
 	./tools/bin2var/bin2var -b ./example/sound/bgm.lz4 > ./example/sound/bgm.c
 	./tools/varext/varext ./example/sound/small_font.c ./example/sound/eff1.c ./example/sound/eff2.c ./example/sound/eff3.c ./example/sound/bgm.c > ./example/sound/roms.hpp
+	./tools/bmp2img/bmp2img -t 8x8 ./example/vdp/vram_ptn.bmp > ./example/vdp/vram_ptn.c
+	./tools/varext/varext ./example/sound/small_font.c ./example/vdp/vram_ptn.c > ./example/vdp/roms.hpp
 
 bin/rgb: $(OBJECTS_RGB)
 	g++ -o bin/rgb $(OBJECTS_RGB) -L/usr/local/lib -lSDL2
@@ -78,6 +80,9 @@ touch.o: example/touch/touch.cpp src/vgssdk.h
 
 vdp_test.o: example/vdp/vdp_test.cpp src/vgssdk.h
 	g++ $(CPPFLAGS) -I./src -c example/vdp/vdp_test.cpp
+
+vram_ptn.o: example/vdp/vram_ptn.c
+	gcc $(CLAGS) -c example/vdp/vram_ptn.c
 
 sandstorm.o: example/sandstorm/sandstorm.cpp src/vgssdk.h
 	g++ $(CPPFLAGS) -I./src -c example/sandstorm/sandstorm.cpp

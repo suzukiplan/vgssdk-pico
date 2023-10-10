@@ -22,4 +22,6 @@ copy:
 	cp -p ../../src/vgstone.c ./src
 	cp -p ../../src/FT6336U.hpp ./src
 	cp -p ../../example/sound/small_font.c ./src
+	cp -p ../../example/vdp/vram_ptn.c ./src
+	cp -p ../../example/vdp/roms.hpp ./src
 	cp -p ../../example/vdp/vdp_test.cpp ./src

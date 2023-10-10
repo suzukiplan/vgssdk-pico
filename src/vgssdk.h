@@ -60,37 +60,124 @@ class VGS
 
     class VDP
     {
-      public:
-        typedef struct Display {
+      private:
+        struct Display {
             unsigned short* buf; // width x height x 2 bytes
             int width;
             int height;
-        } Display;
+        } display;
 
+      public:
         typedef struct OAM_ {
             int x;
             int y;
             unsigned char ptn;
-            unsigned char attr;
+            unsigned char user[3];
         } OAM;
 
         typedef struct RAM_ {
-            unsigned char bg[4096];     // BG name table: 64x64
-            unsigned char fg[4096];     // FG name table: 64x64
-            int bgScrollX;              // BG scroll (X)
-            int bgScrollY;              // BG scroll (Y)
-            int fgScrollX;              // FG scroll (X)
-            int fgScrollY;              // FG scroll (Y)
-            OAM oam[256];               // object attribute memory (sprites)
-            unsigned char ptn[256][64]; // character pattern (8x8 x 256 bytes = 128x128px)
-            unsigned short pal[256];    // palette table
+            unsigned char bg[64][64];    // BG name table: 64x64 (512x512px)
+            int scrollX;                 // BG scroll (X)
+            int scrollY;                 // BG scroll (Y)
+            OAM oam[256];                // object attribute memory (sprites)
+            unsigned short ptn[256][64]; // character pattern (8x8px x 2 x 256 bytes = 32KB = 128x128px)
         } RAM;
 
-        Display* display;
         RAM* vram;
 
-        bool begin(int width, int height);
-        void execute();
+        bool create(int width, int height);
+        void render(int x, int y);
+        inline int getWidth() { return this->display.width; }
+        inline int getHeight() { return this->display.height; }
+
+      private:
+        inline void renderBg(int x, int y, unsigned char ptn)
+        {
+            if (y < -7 || this->display.height <= y) {
+                return; // outside of display (top/bottom)
+            }
+            if (x < 0) {
+                if (x < -7) {
+                    return; // outside of display (left)
+                }
+                // need clip left
+                for (int i = 0; i < 8; i++, y++) {
+                    if (y < 0) {
+                        continue; // clip top
+                    } else if (this->display.height <= y) {
+                        return; // outside of display (bottom)
+                    }
+                    memcpy(&this->display.buf[y * this->display.width], &this->vram->ptn[ptn][i * 8 - x], 16 + x * 2);
+                }
+            } else if (this->display.width - 8 < x) {
+                if (this->display.width <= x) {
+                    return; // outside of display (right)
+                }
+                // need clip right
+                auto dx = x - (this->display.width - 8);
+                for (int i = 0; i < 8; i++, y++) {
+                    if (y < 0) {
+                        continue; // clip top
+                    } else if (this->display.height <= y) {
+                        return; // outside of display (bottom)
+                    }
+                    memcpy(&this->display.buf[y * this->display.width + x], &this->vram->ptn[ptn][i * 8], (8 - dx) * 2);
+                }
+            } else {
+                // no clip left/right
+                for (int i = 0; i < 8; i++, y++) {
+                    if (y < 0) {
+                        continue; // clip top
+                    } else if (this->display.height <= y) {
+                        return; // outside of display (bottom)
+                    }
+                    memcpy(&this->display.buf[y * this->display.width + x], &this->vram->ptn[ptn][i * 8], 16);
+                }
+            }
+        }
+
+        inline void bgToDisplay()
+        {
+            int sx = this->vram->scrollX % 8;
+            int sy = this->vram->scrollY % 8;
+            int px = this->vram->scrollX / 8;
+            int py = this->vram->scrollY / 8;
+            for (int ny = 0 < sy ? -1 : 0; ny < this->display.height / 8 + (sy < 0 ? 1 : 0); ny++) {
+                for (int nx = 0 < sx ? -1 : 0; nx < this->display.width / 8 + (sx < 0 ? 1 : 0); nx++) {
+                    this->renderBg(nx * 8 + sx, ny * 8 + sy, this->vram->bg[(ny + py) & 0x3F][(nx + px) & 0x3F]);
+                }
+            }
+        }
+
+        inline void spriteToDisplay()
+        {
+            for (int i = 0; i < 256; i++) {
+                auto oam = &this->vram->oam[i];
+                if (oam->ptn) {
+                    if (-8 < oam->x && oam->x < this->display.width && -8 < oam->y && oam->y < this->display.height) {
+                        for (int y = 0; y < 8; y++) {
+                            auto ptn = this->vram->ptn[oam->ptn];
+                            if (oam->y + y < 0) {
+                                continue;
+                            } else if (this->display.height <= oam->y + y) {
+                                break;
+                            }
+                            for (int x = 0; x < 8; x++) {
+                                auto col = ptn[y * 8 + x];
+                                if (col) {
+                                    if (oam->x + x < 0) {
+                                        continue;
+                                    } else if (this->display.width <= oam->x + x) {
+                                        break;
+                                    }
+                                    this->display.buf[(oam->y + y) * this->display.width + oam->x + x] = col;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     };
 
     class BGM

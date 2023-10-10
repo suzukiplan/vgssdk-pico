@@ -44,7 +44,7 @@ static I2S i2s(OUTPUT);
 static semaphore_t vgsSemaphore;
 static bool cpu0SetupEnd = false;
 static bool bgmLoaded = false;
-static unsigned short vdp_display_buf[65536];
+static unsigned short vdp_display_buf[46080];
 static VGS::VDP::RAM vdp_vram;
 
 inline void vgsLock() { sem_acquire_blocking(&vgsSemaphore); }
@@ -259,28 +259,25 @@ void VGS::GFX::push(int x, int y)
     }
 }
 
-bool VGS::VDP::begin(int width, int height)
+bool VGS::VDP::create(int width, int height)
 {
     if (sizeof(vdp_display_buf) < width * height * 2) {
         return false;
     }
-    this->display = (VDP::Display*)malloc(sizeof(VDP::Display));
-    if (!this->display) {
-        return false;
-    }
-    memset(this->display, 0, sizeof(VDP::Display));
-    this->display->width = width;
-    this->display->height = height;
-    this->display->buf = vdp_display_buf;
+    this->display.width = width;
+    this->display.height = height;
+    this->display.buf = vdp_display_buf;
     this->vram = &vdp_vram;
+    memset(this->display.buf, 0, width * height * 2);
     memset(this->vram, 0, sizeof(VDP::RAM));
     return true;
 }
 
-void VGS::VDP::execute()
+void VGS::VDP::render(int x, int y)
 {
-    // TODO: VRAM -> DISPLAY
-    memset(this->display->buf, 0x0F, this->display->width * this->display->height * 2);
+    this->bgToDisplay();
+    this->spriteToDisplay();
+    vgs.gfx.image(x, y, this->display.width, this->display.height, this->display.buf);
 }
 
 VGS::BGM::BGM()
