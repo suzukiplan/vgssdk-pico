@@ -1,5 +1,15 @@
 # Change Log
 
+## Version 1.2.0
+
+Pull Request: https://github.com/suzukiplan/vgssdk-pico/pull/3
+
+- VDPサポート
+- 画面回転機能のサポート
+  - 動的な回転はサポートしない方針
+  - ビルド時にコンパイルフラグ VGSGFX_ROTATION で指定する仕様
+- example/sound のアセットデータを tools で生成する形に変更
+
 ## Version 1.1.0
 
 Pull Request: https://github.com/suzukiplan/vgssdk-pico/pull/2
