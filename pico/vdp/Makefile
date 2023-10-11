@@ -23,5 +23,7 @@ copy:
 	cp -p ../../src/FT6336U.hpp ./src
 	cp -p ../../example/assets/small_font.c ./src
 	cp -p ../../example/assets/vram_ptn.c ./src
+	cp -p ../../example/assets/bgm.c ./src
+	cp -p ../../example/assets/eff1.c ./src
 	cp -p ../../example/assets/roms.hpp ./src
 	cp -p ../../example/vdp/vdp_test.cpp ./src

@@ -7,7 +7,7 @@ OBJECTS_TOUCH = touch.o ${OBJECTS_SDK}
 OBJECTS_IMAGE = image.o ${OBJECTS_SDK}
 OBJECTS_SOUND = sound.o bgm.o small_font.o eff1.o eff2.o eff3.o ${OBJECTS_SDK}
 OBJECTS_SANDSTORM = sandstorm.o ${OBJECTS_SDK}
-OBJECTS_VDP = vdp_test.o small_font.o vram_ptn.o ${OBJECTS_SDK}
+OBJECTS_VDP = vdp_test.o small_font.o vram_ptn.o bgm.o eff1.o ${OBJECTS_SDK}
 ASSET_SOURCE = example/assets/small_font.c\
 	example/assets/eff1.c\
 	example/assets/eff2.c\
