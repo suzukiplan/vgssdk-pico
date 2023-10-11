@@ -12,6 +12,10 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifndef VGSVDP_DISPLAY_LIMIT
+#define VGSVDP_DISPLAY_LIMIT 90
+#endif
+
 #ifndef VGSGFX_ROTATION
 #define VGSGFX_ROTATION 2 // default = reverse portrait
 #endif
@@ -38,7 +42,7 @@
 VGS vgs;
 static SDL_Window* window;
 static SDL_Surface* windowSurface;
-static unsigned short vdp_display_buf[46080];
+static unsigned short vdp_display_buf[VGSVDP_DISPLAY_LIMIT * 512];
 static VGS::VDP::RAM vdp_vram;
 static SDL_AudioDeviceID bgmAudioDeviceId;
 static bool bgmLoaded;
@@ -628,6 +632,10 @@ int main()
         log("unsupported pixel format (support only 4 bytes / pixel)");
         exit(-1);
     }
+
+    log("VDP info");
+    log("- display limit: %ld bytes (%ldKB)", sizeof(vdp_display_buf), sizeof(vdp_display_buf) / 1024);
+    log("- VRAM size: %ld bytes (%ldKB)", sizeof(vdp_vram), sizeof(vdp_vram) / 1024 + (sizeof(vdp_vram) % 1024 ? 1 : 0));
 
     vgs_setup();
     SDL_UpdateWindowSurface(window);

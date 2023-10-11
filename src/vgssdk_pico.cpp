@@ -12,7 +12,7 @@
 #include <string.h>
 
 #ifndef VGSVDP_DISPLAY_LIMIT
-#define VGSVDP_DISPLAY_LIMIT 45
+#define VGSVDP_DISPLAY_LIMIT 90
 #endif
 
 #ifndef VGSGFX_ROTATION
@@ -48,7 +48,7 @@ static I2S i2s(OUTPUT);
 static semaphore_t vgsSemaphore;
 static bool cpu0SetupEnd = false;
 static bool bgmLoaded = false;
-static unsigned short vdp_display_buf[VGSVDP_DISPLAY_LIMIT * 1024];
+static unsigned short vdp_display_buf[VGSVDP_DISPLAY_LIMIT * 512];
 static VGS::VDP::RAM vdp_vram;
 
 inline void vgsLock() { sem_acquire_blocking(&vgsSemaphore); }
