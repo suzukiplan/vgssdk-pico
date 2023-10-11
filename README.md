@@ -40,6 +40,21 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 
 なお、[東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)が対応する SoC (RaspberryPi Pico) はマルチコアコア（2 cores）の構成ですが、片方のコアは VGS の音声再生に専念させるため vgssdk-pico を用いるアプリはシングルコア（シングルスレッド & シングルタスク）で設計するものとします。
 
+## How to Integrate
+
+[src](./src) ディレクトリ以下のファイルを対象プロジェクトに組み込んで利用してください。
+
+|File name|RP2040|Simulator|Description|
+|:---------------------------------------|:-:|:-:|:-|
+|[FT6336U.hpp](./src/FT6336U.hpp)        | o | - |タッチパネル（FT6336U）のドライバ|
+|[lz4.c](./src/lz4.c)                    | o | o |BGM ファイルの解凍|
+|[lz4.h](./src/lz4.h)                    | o | o |〃|
+|[vgsdecv.hpp](./src/vgsdecv.hpp)        | o | o |BGM デコーダ|
+|[vgssdk_pico.cpp](./src/vgssdk_pico.cpp)| o | - |VGSSDK の RP2040 依存処理|
+|[vgssdk_sdl2.cpp](./src/vgssdk_sdl2.cpp)| - | o |VGSSDK の SDL2 (macOS, Linux) 依存処理|
+|[vgssdk.h](./src/vgssdk.h)              | o | o |VGSSDK のヘッダファイル|
+|[vgstone.c](./src/vgstone.c)            | o | o |BGM の音色データ|
+
 ## Compile Flags
 
 |Compile Flag|Description|
@@ -574,10 +589,12 @@ NOTES:
 |:-|:-|
 |[bin2var](./tools/bin2var/)|バイナリファイルを `const` の配列形式ソースファイルに変換|
 |[var2ext](./tools/varext/)|[bin2var](./tools/bin2var/)で生成したソースファイル群から `extern` 宣言するヘッダファイルを生成|
-|[bmp2img](./tools/bmp2img/)|Bitmap形式画像ファイルを `VGS::GFX::image` で扱える形式に変換|
+|[bmp2img](./tools/bmp2img/)|256色Bitmap形式画像ファイルを `VGS::GFX::image` で扱える形式に変換|
 |[vgsmml](./tools/vgsmml/)|MMLコンパイラ|
 |[vgsftv](./tools/vgsftv/)|[vgsmml](./tools/vgsmml/)でコンパイルしたBGMを可変データ形式に変換|
 |[vgslz4](./tools/vgslz4/)|ファイルをLZ4で圧縮|
+
+> NOTE: vgsftv と vgslz4 は将来的に本リポジトリの vgsmml に統合予定
 
 ## License
 
