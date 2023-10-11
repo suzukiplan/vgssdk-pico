@@ -5,6 +5,7 @@
 Pull Request: https://github.com/suzukiplan/vgssdk-pico/pull/2
 
 - enhancement:
+  - VDPサポート
   - BGM上限サイズ変更オプションを追加
   - 開発に役立つツール類を tohovgs-pico からコピー
   - 効果音機能の追加
