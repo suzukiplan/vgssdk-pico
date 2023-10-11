@@ -12,8 +12,25 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifndef VGSGFX_ROTATION
+#define VGSGFX_ROTATION 2 // default = reverse portrait
+#endif
+
+#if VGSGFX_ROTATION == 0
 #define VGS_DISPLAY_WIDTH 240
 #define VGS_DISPLAY_HEIGHT 320
+#elif VGSGFX_ROTATION == 1
+#define VGS_DISPLAY_WIDTH 320
+#define VGS_DISPLAY_HEIGHT 240
+#elif VGSGFX_ROTATION == 2
+#define VGS_DISPLAY_WIDTH 240
+#define VGS_DISPLAY_HEIGHT 320
+#define REVERSE_SCREEN
+#elif VGSGFX_ROTATION == 3
+#define VGS_DISPLAY_WIDTH 320
+#define VGS_DISPLAY_HEIGHT 240
+#define REVERSE_SCREEN
+#endif
 
 #define abs_(x) (x >= 0 ? (x) : -(x))
 #define sgn_(x) (x >= 0 ? (1) : (-1))
@@ -21,6 +38,10 @@
 VGS vgs;
 static SDL_Window* window;
 static SDL_Surface* windowSurface;
+static unsigned short vdp_display_buf[46080];
+static VGS::VDP::RAM vdp_vram;
+static SDL_AudioDeviceID bgmAudioDeviceId;
+static bool bgmLoaded;
 
 static void log(const char* format, ...)
 {
@@ -324,8 +345,26 @@ void VGS::GFX::push(int x, int y)
     }
 }
 
-static SDL_AudioDeviceID bgmAudioDeviceId;
-static bool bgmLoaded;
+bool VGS::VDP::create(int width, int height)
+{
+    if (sizeof(vdp_display_buf) < width * height * 2) {
+        return false;
+    }
+    this->display.width = width;
+    this->display.height = height;
+    this->display.buf = vdp_display_buf;
+    this->vram = &vdp_vram;
+    memset(this->display.buf, 0, width * height * 2);
+    memset(this->vram, 0, sizeof(VDP::RAM));
+    return true;
+}
+
+void VGS::VDP::render(int x, int y)
+{
+    this->bgToDisplay();
+    this->spriteToDisplay();
+    vgs.gfx.image(x, y, this->display.width, this->display.height, this->display.buf);
+}
 
 static inline void playSoundEffect(VGS::SoundEffect* eff, short* buffer, int count)
 {

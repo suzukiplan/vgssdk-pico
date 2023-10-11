@@ -11,22 +11,45 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef VGSVDP_DISPLAY_LIMIT
+#define VGSVDP_DISPLAY_LIMIT 45
+#endif
+
+#ifndef VGSGFX_ROTATION
+#define VGSGFX_ROTATION 2 // default = reverse portrait
+#endif
+
+#if VGSGFX_ROTATION == 0
 #define VGS_DISPLAY_WIDTH 240
 #define VGS_DISPLAY_HEIGHT 320
-#define VGS_BUFFER_SIZE 4096
+#elif VGSGFX_ROTATION == 1
+#define VGS_DISPLAY_WIDTH 320
+#define VGS_DISPLAY_HEIGHT 240
+#elif VGSGFX_ROTATION == 2
+#define VGS_DISPLAY_WIDTH 240
+#define VGS_DISPLAY_HEIGHT 320
 #define REVERSE_SCREEN
+#elif VGSGFX_ROTATION == 3
+#define VGS_DISPLAY_WIDTH 320
+#define VGS_DISPLAY_HEIGHT 240
+#define REVERSE_SCREEN
+#endif
+
+#define VGS_BUFFER_SIZE 4096
 
 #define abs_(x) (x >= 0 ? (x) : -(x))
 #define sgn_(x) (x >= 0 ? (1) : (-1))
 
 VGS vgs;
 static VGSDecoder vgsdec;
-static TFT_eSPI tft(VGS_DISPLAY_WIDTH, VGS_DISPLAY_HEIGHT);
+static TFT_eSPI tft(240, 320);
 static FT6336U ctp(&Wire, CTP_SDA, CTP_SCL, CTP_RST, CTP_INT);
 static I2S i2s(OUTPUT);
 static semaphore_t vgsSemaphore;
 static bool cpu0SetupEnd = false;
 static bool bgmLoaded = false;
+static unsigned short vdp_display_buf[VGSVDP_DISPLAY_LIMIT * 1024];
+static VGS::VDP::RAM vdp_vram;
 
 inline void vgsLock() { sem_acquire_blocking(&vgsSemaphore); }
 inline void vgsUnlock() { sem_release(&vgsSemaphore); }
@@ -240,6 +263,27 @@ void VGS::GFX::push(int x, int y)
     }
 }
 
+bool VGS::VDP::create(int width, int height)
+{
+    if (sizeof(vdp_display_buf) < width * height * 2) {
+        return false;
+    }
+    this->display.width = width;
+    this->display.height = height;
+    this->display.buf = vdp_display_buf;
+    this->vram = &vdp_vram;
+    memset(this->display.buf, 0, width * height * 2);
+    memset(this->vram, 0, sizeof(VDP::RAM));
+    return true;
+}
+
+void VGS::VDP::render(int x, int y)
+{
+    this->bgToDisplay();
+    this->spriteToDisplay();
+    vgs.gfx.image(x, y, this->display.width, this->display.height, this->display.buf);
+}
+
 VGS::BGM::BGM()
 {
     this->context = &vgsdec;
@@ -395,11 +439,8 @@ void setup()
     tft.startWrite();
 
     // ディスプレイの向きを初期化
-#ifdef REVERSE_SCREEN
-    tft.setRotation(2);
-#else
-    tft.setRotation(0);
-#endif
+    tft.setRotation(VGSGFX_ROTATION);
+    vgs.gfx.clear(0);
     tft.endWrite();
 
     // initialize FT6336U I2C (Capacitive Touch Panel)
@@ -422,12 +463,18 @@ void loop()
     ctp.scan();
     vgsUnlock();
     vgs.io.touch.on = ctp.status.on;
-#ifdef REVERSE_SCREEN
-    vgs.io.touch.x = VGS_DISPLAY_WIDTH - 1 - ctp.status.x;
-    vgs.io.touch.y = VGS_DISPLAY_HEIGHT - 1 - ctp.status.y;
-#else
+#if VGSGFX_ROTATION == 0
     vgs.io.touch.x = ctp.status.x;
     vgs.io.touch.y = ctp.status.y;
+#elif VGSGFX_ROTATION == 1
+    vgs.io.touch.x = ctp.status.y;
+    vgs.io.touch.y = 239 - ctp.status.x;
+#elif VGSGFX_ROTATION == 2
+    vgs.io.touch.x = 239 - ctp.status.x;
+    vgs.io.touch.y = 319 - ctp.status.y;
+#elif VGSGFX_ROTATION == 3
+    vgs.io.touch.x = 319 - ctp.status.y;
+    vgs.io.touch.y = ctp.status.x;
 #endif
     vgs_loop();
 }

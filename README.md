@@ -24,6 +24,7 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 
 - `VGS` ... メインコントローラ（シングルトン）
 - `VGS::GFX` ... 画面描画機能を提供するクラス
+- `VGS::VDP` ... 画面描画機能を提供するクラス（ゲーム用）
 - `VGS::BGM` ... VGS波形メモリ音源機能を提供するクラス
 - `VGS::SoundEffect` ... 効果音再生機能を提供するクラス　
 - `VGS::IO` ... 外部デバイス I/O 機能（タッチパネル+ゲームパッド）を提供するクラス
@@ -35,7 +36,7 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 3. `extern "C" void vgs_setup() { }` に起動時の初期化処理を記述
 4. `extern "C" void vgs_loop() { }` にメインループ処理を記述
 
-> サンプリアプリ [app.cpp](example/app.cpp) の実装を参照してください。
+> [サンプリアプリ](example) の実装を参照してください。
 
 なお、[東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)が対応する SoC (RaspberryPi Pico) はマルチコアコア（2 cores）の構成ですが、片方のコアは VGS の音声再生に専念させるため vgssdk-pico を用いるアプリはシングルコア（シングルスレッド & シングルタスク）で設計するものとします。
 
@@ -44,6 +45,11 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 |Compile Flag|Description|
 |:-:|:-|
 |`-DVGSBGM_LIMIT_SIZE=数値`|BGMの非圧縮サイズ上限を KB 単位で指定（省略時: 108KB）|
+|`-DVGSVDP_DISPLAY_LIMIT=数値`|VDPの表示領域サイズの上限を KB 単位で指定（省略時: 45KB）|
+|`-DVGSGFX_ROTATION=0`|画面の向きを Portrait にする|
+|`-DVGSGFX_ROTATION=1`|画面の向きを Landscape にする|
+|`-DVGSGFX_ROTATION=2`|画面の向きを Reverse Portrait にする __(省略時のデフォルト)__|
+|`-DVGSGFX_ROTATION=3`|画面の向きを Reverse Landscape にする|
 
 ## `VGS class`
 
@@ -247,6 +253,111 @@ void VGS::GFX::push(int x, int y);
 ```
 
 仮想ディスプレイの内容を物理ディスプレイの指定座標 (x, y) に描画します
+
+## `VGS::VDP class`
+
+- VDP (Video Display Processor) を用いた画面描画機能を提供します
+- GFX とは異なりキャラクタパターンベースの画面（BG）とスプライトの描画機能を提供します
+
+### VDP Basic Usage
+
+1. [`VGS::VDP::create`](#vgsvdpcreate-method) で幅 (width) と高さ (height) を指定して描画領域を作成
+2. [`VGS::VDP::vram`](#vgsvdpram-video-meemory) の値を更新
+3. [`VGS::VDP::render`](#vgsvdprender-method) で　[`VGS::VDP::vram`](#vgsvdpram-video-meemory) の内容を LCD に表示
+
+### `VGS::VDP::create method`
+
+```c++
+bool VGS::VDP::create(int width, int height);
+```
+
+- 描画領域を作成します
+- `width` × `height` × 2 (単位: bytes) が `VGSVDP_DISPLAY_LIMIT` のサイズを超える場合 `false` を返して失敗します
+
+### `VGS::VDP::render method`
+
+```c++
+void VGS::VDP::render(int x, int y);
+```
+
+LCD の指定座標（x, y）に呼び出し時点の [`VGS::VDP::vram`](#vgsvdpram-video-meemory) の内容を描画します
+
+### `VGS::VDP::RAM (Video Meemory)`
+
+```c++
+typedef struct VGS::VDP::RAM_ {
+    unsigned char bg[64][64];    // BG name table: 64x64 (512x512px)
+    int scrollX;                 // BG scroll (X)
+    int scrollY;                 // BG scroll (Y)
+    OAM oam[256];                // object attribute memory (sprites)
+    unsigned short ptn[256][64]; // character pattern (8x8px x 2 x 256 bytes = 32KB = 128x128px)
+} VGS::VDP::RAM;
+```
+
+|Member Variable|Description|
+|:-|:-|
+|`bg`|背景画像のネームテーブル: 64行(y), 64列(x) = 512x512px|
+|`scrollX`|X 方向のスクロール基点座標（ピクセル単位）<br>※ネームテーブルを超える場合はループ|
+|`scrollY`|Y 方向のスクロール基点座標（ピクセル単位）<br>※ネームテーブルを超える場合はループ|
+|`oam`|スプライトの属性情報（Object Attribute Memory）です|
+|`ptn`|8x8ピクセルのパターンデータ x 256個|
+
+### `VGS::VDP::OAM (Object Attribute Memory)`
+
+```c++
+typedef struct VGS::VDP::OAM_ {
+    int x;
+    int y;
+    unsigned char ptn;
+    unsigned char user[3];
+} VGS::VDP::OAM;
+```
+
+|Member Variable|Description|
+|:-|:-|
+|`x`|スプライトの X 座標|
+|`y`|スプライトの Y 座標|
+|`ptn`|スプライトのパターン番号（※）|
+|`user[3]`|ユーザ領域（任意に利用できる 3 バイトの未使用エリア）|
+
+Remarks:
+
+- スプライトのパターン番号 0 は「描画しないスプライト」を意味します
+  - スプライトの場合: パターン番号 0 は描画パターンとして利用できません
+  - BG の場合: パターン番号 0 は描画パターンとして利用できます
+- スプライト描画数の水平上限は 256 (無制限) です
+
+### `VGS::VDP Utility methods`
+
+VDP 関連 (主に vram 更新) のコード可読性を良くするためのユーティリティ・メソッドを提供しています
+
+```c++
+// create時の width/height getter
+inline int VGS::VDP::getWidth();
+inline int VGS::VDP::getHeight();
+
+// スクロールの setter
+inline void VGS::VDP::setScrollX(int x);
+inline void VGS::VDP::setScrollY(int y);
+inline void VGS::VDP::setScroll(int x, int y);
+inline void VGS::VDP::addScrollX(int ax);
+inline void VGS::VDP::addScrollY(int ay);
+inline void VGS::VDP::addScroll(int ax, int ay);
+
+// BG の setter
+inline void VGS::VDP::setBg(int x, int y, unsigned char ptn);
+inline void VGS::VDP::setBg(int index, unsigned char ptn);
+
+// OAM の getter/setter
+inline OAM* VGS::VDP::getOam(unsigned char index);
+inline void VGS::VDP::setOam(unsigned char index,
+                             int x = 0,
+                             int y = 0,
+                             unsigned char ptn = 0,
+                             unsigned char user0 = 0,
+                             unsigned char user1 = 0,
+                             unsigned char user2 = 0);
+```
 
 ## `VGS::BGM class`
 
