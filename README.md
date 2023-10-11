@@ -58,7 +58,7 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 ## Compile Flags
 
 |Compile Flag|Description|
-|:-:|:-|
+|:-|:-|
 |`-DVGSBGM_LIMIT_SIZE=数値`|BGMの非圧縮サイズ上限を KB 単位で指定（省略時: `108` KB）|
 |`-DVGSVDP_DISPLAY_LIMIT=数値`|VDPの表示領域サイズの上限を KB 単位で指定（省略時: `90` KB）|
 |`-DVGSGFX_ROTATION=0`|画面の向きを Portrait にする|
@@ -66,7 +66,7 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 |`-DVGSGFX_ROTATION=2`|画面の向きを Reverse Portrait にする __(省略時のデフォルト)__|
 |`-DVGSGFX_ROTATION=3`|画面の向きを Reverse Landscape にする|
 
-> __NOTE:__ RP2040 で使用できる RAM サイズは `264KB` のため、規定の状態で VGS::BGM と VGS::VDP (display: 90KB + VRAM: 40KB) の両方を使用すると `238KB` (90%以上) を、専有してしまいアプリケーションが利用できるメモリ残量が僅かになってしまうため、`VGSBGM_LIMIT_SIZE` を適宜調整してアプリケーション用のメモリを確保することを推奨します。
+> __NOTE:__ RP2040 で使用できる RAM サイズは `264KB` のため、規定の状態で VGS::BGM と VGS::VDP (display: 90KB + VRAM: 40KB) の両方を使用すると `238KB` (90%以上) を専有してしまい、アプリケーションが利用できるメモリ残量が僅かになってしまうため、`VGSBGM_LIMIT_SIZE` を適宜調整してアプリケーション用のメモリを確保することを推奨します。（`VGSBGM_LIMIT_SIZE` の既定値は東方VGSが提供する全楽曲の非圧縮データサイズの中で最も大きなサイズを基準に設定されています）
 
 ## `VGS class`
 
