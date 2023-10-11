@@ -81,6 +81,7 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 ### Public Member Variables
 
 - `vgs.gfx` ... [VGS::GFX class](#vgsgfx-class) の インスタンス
+- `vgs.vdp` ... [VGS::VDP class](#vgsvdp-class) の インスタンス
 - `vgs.bgm` ... [VGS::BGM class](#vgsbgm-class) の インスタンス
 - `vgs.eff` ... [VGS::SoundEffect class](#vgssoundeffect-class) の インスタンス
 - `vgs.io` ... [VGS::IO class](#vgsio-class) の インスタンス
@@ -327,6 +328,8 @@ typedef struct VGS::VDP::RAM_ {
 |`oam`|スプライトの属性情報（Object Attribute Memory）です|
 |`ptn`|8x8ピクセルのパターンデータ x 256個|
 
+Video Memory は `vgs.vdp.vram` で直接アクセスできますが [ユーティリティ・メソッド](#vgsvdp-utility-methods) の setter/getter での安全なアクセスも可能です。
+
 ### `VGS::VDP::OAM (Object Attribute Memory)`
 
 ```c++
@@ -374,8 +377,8 @@ inline void VGS::VDP::setBg(int x, int y, unsigned char ptn);
 inline void VGS::VDP::setBg(int index, unsigned char ptn);
 
 // OAM の getter/setter
-inline OAM* VGS::VDP::getOam(unsigned char index);
-inline void VGS::VDP::setOam(unsigned char index,
+inline OAM* VGS::VDP::getOam(int index);
+inline void VGS::VDP::setOam(int index,
                              int x = 0,
                              int y = 0,
                              unsigned char ptn = 0,
