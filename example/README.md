@@ -4,6 +4,7 @@
 
 |Directory|Screenshot|Description|
 |:-|:-|:-|
+|[./vdp/vdp_test.cpp](./vdp/vdp_test.cpp)|![./vdp.png](./vdp.png)|VDPの使用例|
 |[./rgb/rgb.cpp](./rgb/rgb.cpp)|![./rgb.png](./rgb.png)|画面にRGBカラー等を表示|
 |[./image/image.cpp](./image/image.cpp)|![./image.png](./image.png)|16x16のイメージをランダムに描画|
 |[./sandstorm/sandstorm.cpp](./sandstorm/sandstorm.cpp)|![./sandstorm.png](./sandstorm.png)|砂嵐|
