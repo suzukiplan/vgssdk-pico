@@ -89,7 +89,7 @@ class VGS
         void render(int x, int y);
         inline int getWidth() { return this->display.width; }
         inline int getHeight() { return this->display.height; }
-        inline OAM* getOam(unsigned char index) { return &this->vram->oam[index]; }
+        inline OAM* getOam(int index) { return &this->vram->oam[index & 0xFF]; }
         inline void setScrollX(int x) { this->vram->scrollX = x; }
         inline void setScrollY(int y) { this->vram->scrollY = y; }
         inline void addScrollX(int ax) { this->vram->scrollX += ax; }
@@ -114,7 +114,7 @@ class VGS
             this->setBg(index & 0x3F, index / 64, ptn);
         }
 
-        inline void setOam(unsigned char index,
+        inline void setOam(int index,
                            int x = 0,
                            int y = 0,
                            unsigned char ptn = 0,
@@ -122,6 +122,7 @@ class VGS
                            unsigned char user1 = 0,
                            unsigned char user2 = 0)
         {
+            index &= 0xFF;
             this->vram->oam[index].ptn = ptn;
             this->vram->oam[index].x = x;
             this->vram->oam[index].y = y;

@@ -1,5 +1,13 @@
 # Change Log
 
+## Version 1.2.1
+
+Pull Request: https://github.com/suzukiplan/vgssdk-pico/pull/4
+
+- `VGS::VDP::setOam` と `VGS::VDP::getOam` の引数 `index` の型を `unsigned char` から `int` に変更
+- bugfix: VGSVDP_DISPLAY_LIMIT に KB 単位で指定とあるが実際は 指定サイズ x 2 KB となっていたため 指定サイズ KB となるように修正（既定値を45→90に変更）
+- example のアセット類の管理構成を変更
+
 ## Version 1.2.0
 
 Pull Request: https://github.com/suzukiplan/vgssdk-pico/pull/3

@@ -21,11 +21,11 @@ copy:
 	cp -p ../../src/vgssdk.h ./src
 	cp -p ../../src/vgstone.c ./src
 	cp -p ../../src/FT6336U.hpp ./src
-	cp -p ../../example/sound/small_font.c ./src
-	cp -p ../../example/sound/bgm.c ./src
-	cp -p ../../example/sound/eff1.c ./src
-	cp -p ../../example/sound/eff2.c ./src
-	cp -p ../../example/sound/eff3.c ./src
+	cp -p ../../example/assets/small_font.c ./src
+	cp -p ../../example/assets/bgm.c ./src
+	cp -p ../../example/assets/eff1.c ./src
+	cp -p ../../example/assets/eff2.c ./src
+	cp -p ../../example/assets/eff3.c ./src
+	cp -p ../../example/assets/roms.hpp ./src
 	cp -p ../../example/sound/sound.cpp ./src
-	cp -p ../../example/sound/roms.hpp ./src
 

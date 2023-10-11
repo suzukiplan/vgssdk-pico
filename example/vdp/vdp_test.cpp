@@ -69,6 +69,9 @@ extern "C" void vgs_setup()
     }
     vgs.gfx.endWrite();
 
+    // BGMを再生
+    vgs.bgm.load(rom_bgm, sizeof(rom_bgm));
+
     // macOS or Linux（シミュレータ）は 20fps で動かす
     // ※実機（RP2040）は全力でブン回す
     vgs.setFrameRate(20);
@@ -86,6 +89,7 @@ extern "C" void vgs_loop()
     if (vgs.io.touch.on && !prevTouch) {
         sx = rand() % 6 - 3;
         sy = rand() % 6 - 3;
+        vgs.eff.play(rom_eff1, sizeof(rom_eff1));
     }
     vgs.vdp.addScroll(sx, sy);
     prevTouch = vgs.io.touch.on;

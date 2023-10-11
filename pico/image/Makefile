@@ -20,5 +20,4 @@ copy:
 	cp -p ../../src/vgssdk.h ./src
 	cp -p ../../src/vgstone.c ./src
 	cp -p ../../src/FT6336U.hpp ./src
-	cp -p ../../example/image/image_test_data.c ./src
 	cp -p ../../example/image/image.cpp ./src

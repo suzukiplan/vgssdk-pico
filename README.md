@@ -40,22 +40,48 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 
 なお、[東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico)が対応する SoC (RaspberryPi Pico) はマルチコアコア（2 cores）の構成ですが、片方のコアは VGS の音声再生に専念させるため vgssdk-pico を用いるアプリはシングルコア（シングルスレッド & シングルタスク）で設計するものとします。
 
+## How to Integrate
+
+[src](./src) ディレクトリ以下のファイルを対象プロジェクトに組み込んで利用してください。
+
+|File name|RP2040|Simulator|Description|
+|:---------------------------------------|:-:|:-:|:-|
+|[FT6336U.hpp](./src/FT6336U.hpp)        | o | - |タッチパネル（FT6336U）のドライバ|
+|[lz4.c](./src/lz4.c)                    | o | o |BGM ファイルの解凍|
+|[lz4.h](./src/lz4.h)                    | o | o |〃|
+|[vgsdecv.hpp](./src/vgsdecv.hpp)        | o | o |BGM デコーダ|
+|[vgssdk_pico.cpp](./src/vgssdk_pico.cpp)| o | - |VGSSDK の RP2040 依存処理|
+|[vgssdk_sdl2.cpp](./src/vgssdk_sdl2.cpp)| - | o |VGSSDK の SDL2 (macOS, Linux) 依存処理|
+|[vgssdk.h](./src/vgssdk.h)              | o | o |VGSSDK のヘッダファイル|
+|[vgstone.c](./src/vgstone.c)            | o | o |BGM の音色データ|
+
 ## Compile Flags
 
 |Compile Flag|Description|
-|:-:|:-|
-|`-DVGSBGM_LIMIT_SIZE=数値`|BGMの非圧縮サイズ上限を KB 単位で指定（省略時: 108KB）|
-|`-DVGSVDP_DISPLAY_LIMIT=数値`|VDPの表示領域サイズの上限を KB 単位で指定（省略時: 45KB）|
+|:-|:-|
+|`-DVGSBGM_LIMIT_SIZE=数値`|BGMの非圧縮サイズ上限を KB 単位で指定（省略時: `108` KB）|
+|`-DVGSVDP_DISPLAY_LIMIT=数値`|VDPの表示領域サイズの上限を KB 単位で指定（省略時: `90` KB）|
 |`-DVGSGFX_ROTATION=0`|画面の向きを Portrait にする|
 |`-DVGSGFX_ROTATION=1`|画面の向きを Landscape にする|
 |`-DVGSGFX_ROTATION=2`|画面の向きを Reverse Portrait にする __(省略時のデフォルト)__|
 |`-DVGSGFX_ROTATION=3`|画面の向きを Reverse Landscape にする|
+
+> __NOTE:__ RP2040 で使用できる RAM サイズは `264KB` のため、規定の状態で `VGS::BGM` と `VGS::VDP` (display: 90KB + VRAM: 40KB) の両方を使用すると `238KB` (90%以上) を専有してしまい、アプリケーションが利用できるメモリ残量が僅かになってしまうため、`VGSBGM_LIMIT_SIZE` でメモリサイズを調整することが事実上必須となります。（`VGSBGM_LIMIT_SIZE` の既定値は東方VGSが提供する全楽曲の非圧縮データサイズの中で最も大きなサイズを基準に設定されています）
+>
+> 【参考】`VGS::BGM` と `VGS::VDP` の両方を使用する [example/vdp](./example/vdp/vdp_test.cpp) を RP2040 向けに `-DVGSBGM_LIMIT_SIZE=32` を指定してビルドした時のメモリ専有量は 約190KB です。
+>
+> ```
+> Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
+> RAM:   [=======   ]  74.4% (used 195088 bytes from 262144 bytes)
+> Flash: [==        ]  18.0% (used 375748 bytes from 2093056 bytes)
+> ```
 
 ## `VGS class`
 
 ### Public Member Variables
 
 - `vgs.gfx` ... [VGS::GFX class](#vgsgfx-class) の インスタンス
+- `vgs.vdp` ... [VGS::VDP class](#vgsvdp-class) の インスタンス
 - `vgs.bgm` ... [VGS::BGM class](#vgsbgm-class) の インスタンス
 - `vgs.eff` ... [VGS::SoundEffect class](#vgssoundeffect-class) の インスタンス
 - `vgs.io` ... [VGS::IO class](#vgsio-class) の インスタンス
@@ -302,6 +328,8 @@ typedef struct VGS::VDP::RAM_ {
 |`oam`|スプライトの属性情報（Object Attribute Memory）です|
 |`ptn`|8x8ピクセルのパターンデータ x 256個|
 
+Video Memory は `vgs.vdp.vram` で直接アクセスできますが [ユーティリティ・メソッド](#vgsvdp-utility-methods) の setter/getter での安全なアクセスも可能です。
+
 ### `VGS::VDP::OAM (Object Attribute Memory)`
 
 ```c++
@@ -349,8 +377,8 @@ inline void VGS::VDP::setBg(int x, int y, unsigned char ptn);
 inline void VGS::VDP::setBg(int index, unsigned char ptn);
 
 // OAM の getter/setter
-inline OAM* VGS::VDP::getOam(unsigned char index);
-inline void VGS::VDP::setOam(unsigned char index,
+inline OAM* VGS::VDP::getOam(int index);
+inline void VGS::VDP::setOam(int index,
                              int x = 0,
                              int y = 0,
                              unsigned char ptn = 0,
@@ -574,10 +602,12 @@ NOTES:
 |:-|:-|
 |[bin2var](./tools/bin2var/)|バイナリファイルを `const` の配列形式ソースファイルに変換|
 |[var2ext](./tools/varext/)|[bin2var](./tools/bin2var/)で生成したソースファイル群から `extern` 宣言するヘッダファイルを生成|
-|[bmp2img](./tools/bmp2img/)|Bitmap形式画像ファイルを `VGS::GFX::image` で扱える形式に変換|
+|[bmp2img](./tools/bmp2img/)|256色Bitmap形式画像ファイルを `VGS::GFX::image` で扱える形式に変換|
 |[vgsmml](./tools/vgsmml/)|MMLコンパイラ|
 |[vgsftv](./tools/vgsftv/)|[vgsmml](./tools/vgsmml/)でコンパイルしたBGMを可変データ形式に変換|
 |[vgslz4](./tools/vgslz4/)|ファイルをLZ4で圧縮|
+
+> NOTE: vgsftv と vgslz4 は将来的に本リポジトリの vgsmml に統合予定
 
 ## License
 
