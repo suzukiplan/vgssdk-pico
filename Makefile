@@ -1,13 +1,19 @@
 SDLOPTS = -I/usr/include/SDL2 -I/usr/local/include/SDL2 -I/opt/X11/include -D_THREAD_SAFE
-CFLAGS = -O2 ${SDLOPTS}
-CPPFLAGS = -std=c++11 -O2 ${SDLOPTS}
+CFLAGS = -O2 -I./example/assets ${SDLOPTS}
+CPPFLAGS = -std=c++11 -O2 -I./example/assets ${SDLOPTS}
 OBJECTS_SDK = vgssdk_sdl2.o vgstone.o lz4.o
 OBJECTS_RGB = rgb.o ${OBJECTS_SDK}
 OBJECTS_TOUCH = touch.o ${OBJECTS_SDK}
-OBJECTS_IMAGE = image.o image_test_data.o ${OBJECTS_SDK}
+OBJECTS_IMAGE = image.o ${OBJECTS_SDK}
 OBJECTS_SOUND = sound.o bgm.o small_font.o eff1.o eff2.o eff3.o ${OBJECTS_SDK}
 OBJECTS_SANDSTORM = sandstorm.o ${OBJECTS_SDK}
 OBJECTS_VDP = vdp_test.o small_font.o vram_ptn.o ${OBJECTS_SDK}
+ASSET_SOURCE = example/assets/small_font.c\
+	example/assets/eff1.c\
+	example/assets/eff2.c\
+	example/assets/eff3.c\
+	example/assets/bgm.c\
+	example/assets/vram_ptn.c
 
 all:
 	make roms
@@ -19,19 +25,38 @@ all:
 	make bin/sandstorm
 	make bin/vdp
 
+clean:
+	rm -f $(ASSET_SOURCE)
+	rm -f *.o
+	rm -rf bin
+
 roms:
 	cd tools && make
-	./tools/bmp2img/bmp2img -t 4x8 ./example/sound/small_font.bmp > ./example/sound/small_font.c
-	./tools/bin2var/bin2var -s ./example/sound/eff1.wav > ./example/sound/eff1.c
-	./tools/bin2var/bin2var -s ./example/sound/eff2.wav > ./example/sound/eff2.c
-	./tools/bin2var/bin2var -s ./example/sound/eff3.wav > ./example/sound/eff3.c
-	./tools/vgsmml/vgsmml ./example/sound/bgm.mml ./example/sound/bgm.bgm
-	./tools/vgsftv/vgsftv ./example/sound/bgm.bgm ./example/sound/bgm.ftv
-	./tools/vgslz4/vgslz4 ./example/sound/bgm.ftv ./example/sound/bgm.lz4
-	./tools/bin2var/bin2var -b ./example/sound/bgm.lz4 > ./example/sound/bgm.c
-	./tools/varext/varext ./example/sound/small_font.c ./example/sound/eff1.c ./example/sound/eff2.c ./example/sound/eff3.c ./example/sound/bgm.c > ./example/sound/roms.hpp
-	./tools/bmp2img/bmp2img -t 8x8 ./example/vdp/vram_ptn.bmp > ./example/vdp/vram_ptn.c
-	./tools/varext/varext ./example/sound/small_font.c ./example/vdp/vram_ptn.c > ./example/vdp/roms.hpp
+	make example/assets/roms.hpp
+
+example/assets/roms.hpp: $(ASSET_SOURCE)
+	./tools/varext/varext $(ASSET_SOURCE) > ./example/assets/roms.hpp
+
+example/assets/small_font.c: example/assets/small_font.bmp
+	./tools/bmp2img/bmp2img -t 4x8 ./example/assets/small_font.bmp > ./example/assets/small_font.c
+
+example/assets/eff1.c: example/assets/eff1.wav
+	./tools/bin2var/bin2var -s ./example/assets/eff1.wav > ./example/assets/eff1.c
+
+example/assets/eff2.c: example/assets/eff2.wav
+	./tools/bin2var/bin2var -s ./example/assets/eff2.wav > ./example/assets/eff2.c
+
+example/assets/eff3.c: example/assets/eff3.wav
+	./tools/bin2var/bin2var -s ./example/assets/eff3.wav > ./example/assets/eff3.c
+
+example/assets/bgm.c: example/assets/bgm.mml
+	./tools/vgsmml/vgsmml ./example/assets/bgm.mml ./example/assets/bgm.bgm
+	./tools/vgsftv/vgsftv ./example/assets/bgm.bgm ./example/assets/bgm.ftv
+	./tools/vgslz4/vgslz4 ./example/assets/bgm.ftv ./example/assets/bgm.lz4
+	./tools/bin2var/bin2var -b ./example/assets/bgm.lz4 > ./example/assets/bgm.c
+
+example/assets/vram_ptn.c: example/assets/vram_ptn.bmp
+	./tools/bmp2img/bmp2img -t 8x8 ./example/assets/vram_ptn.bmp > ./example/assets/vram_ptn.c
 
 bin/rgb: $(OBJECTS_RGB)
 	g++ -o bin/rgb $(OBJECTS_RGB) -L/usr/local/lib -lSDL2
@@ -81,35 +106,14 @@ touch.o: example/touch/touch.cpp src/vgssdk.h
 vdp_test.o: example/vdp/vdp_test.cpp src/vgssdk.h
 	g++ $(CPPFLAGS) -I./src -c example/vdp/vdp_test.cpp
 
-vram_ptn.o: example/vdp/vram_ptn.c
-	gcc $(CLAGS) -c example/vdp/vram_ptn.c
-
 sandstorm.o: example/sandstorm/sandstorm.cpp src/vgssdk.h
 	g++ $(CPPFLAGS) -I./src -c example/sandstorm/sandstorm.cpp
 
 image.o: example/image/image.cpp src/vgssdk.h
 	g++ $(CPPFLAGS) -I./src -c example/image/image.cpp
 
-image_test_data.o: example/image/image_test_data.c
-	gcc $(CFLAGS) -I./src -c example/image/image_test_data.c
-
 sound.o: example/sound/sound.cpp src/vgssdk.h
 	g++ $(CPPFLAGS) -I./src -c example/sound/sound.cpp
-
-bgm.o: example/sound/bgm.c
-	gcc $(CLAGS) -c example/sound/bgm.c
-
-small_font.o: example/sound/small_font.c
-	gcc $(CLAGS) -c example/sound/small_font.c
-
-eff1.o: example/sound/eff1.c
-	gcc $(CLAGS) -c example/sound/eff1.c
-
-eff2.o: example/sound/eff2.c
-	gcc $(CLAGS) -c example/sound/eff2.c
-
-eff3.o: example/sound/eff3.c
-	gcc $(CLAGS) -c example/sound/eff3.c
 
 vgssdk_sdl2.o: src/vgssdk_sdl2.cpp src/vgssdk.h
 	g++ $(CPPFLAGS) -c src/vgssdk_sdl2.cpp
@@ -119,3 +123,21 @@ vgstone.o: src/vgstone.c
 
 lz4.o: src/lz4.c
 	gcc $(CLAGS) -c src/lz4.c
+
+vram_ptn.o: example/assets/vram_ptn.c
+	gcc $(CLAGS) -c example/assets/vram_ptn.c
+
+bgm.o: example/assets/bgm.c
+	gcc $(CLAGS) -c example/assets/bgm.c
+
+small_font.o: example/assets/small_font.c
+	gcc $(CLAGS) -c example/assets/small_font.c
+
+eff1.o: example/assets/eff1.c
+	gcc $(CLAGS) -c example/assets/eff1.c
+
+eff2.o: example/assets/eff2.c
+	gcc $(CLAGS) -c example/assets/eff2.c
+
+eff3.o: example/assets/eff3.c
+	gcc $(CLAGS) -c example/assets/eff3.c

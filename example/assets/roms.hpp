@@ -4,4 +4,5 @@ extern "C" {
     extern const short rom_eff2[2060];
     extern const short rom_eff3[4023];
     extern const unsigned char rom_bgm[2229];
+    extern const unsigned short rom_vram_ptn[16384];
 }
