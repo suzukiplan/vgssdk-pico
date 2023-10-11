@@ -180,11 +180,14 @@ class VGS
         {
             int sx = this->vram->scrollX % 8;
             int sy = this->vram->scrollY % 8;
-            int px = this->vram->scrollX / 8;
-            int py = this->vram->scrollY / 8;
-            for (int ny = 0 < sy ? -1 : 0; ny < this->display.height / 8 + (sy < 0 ? 1 : 0); ny++) {
-                for (int nx = 0 < sx ? -1 : 0; nx < this->display.width / 8 + (sx < 0 ? 1 : 0); nx++) {
-                    this->renderBg(nx * 8 + sx, ny * 8 + sy, this->vram->bg[(ny + py) & 0x3F][(nx + px) & 0x3F]);
+            int py = 64 - this->vram->scrollY / 8 - 1;
+            const int h = this->display.height / 8 + (this->display.height % 8 ? 1 : 0);
+            const int w = this->display.width / 8 + (this->display.width % 8 ? 1 : 0);
+            for (int ny = -1; ny <= h; ny++, py++) {
+                py &= 0x3F;
+                int px = 64 - this->vram->scrollX / 8 - 1;
+                for (int nx = -1; nx <= w; nx++, px++) {
+                    this->renderBg(nx * 8 + sx, ny * 8 + sy, this->vram->bg[py][px & 0x3F]);
                 }
             }
         }
