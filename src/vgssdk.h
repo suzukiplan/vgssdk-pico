@@ -76,11 +76,15 @@ class VGS
         } OAM;
 
         typedef struct RAM_ {
-            unsigned char bg[64][64];    // BG name table: 64x64 (512x512px)
-            int scrollX;                 // BG scroll (X)
-            int scrollY;                 // BG scroll (Y)
-            OAM oam[256];                // object attribute memory (sprites)
-            unsigned short ptn[256][64]; // character pattern (8x8px x 2 x 256 bytes = 32KB = 128x128px)
+            unsigned char bg[64][64];  // BG name table: 64x64 (512x512px)
+            int scrollX;               // BG scroll (X)
+            int scrollY;               // BG scroll (Y)
+            OAM oam[256];              // object attribute memory (sprites)
+#ifdef VGSVDP_PTNTBL_ROM               //
+            const unsigned short* ptn; // charcter pattern (ROM)
+#else                                  //
+            unsigned short ptn[16384]; // character pattern (8x8px x 2 x 256 bytes = 32KB = 128x128px)
+#endif                                 //
         } RAM;
 
         RAM* vram;
@@ -95,6 +99,25 @@ class VGS
         inline void addScrollX(int ax) { this->vram->scrollX += ax; }
         inline void addScrollY(int ay) { this->vram->scrollY += ay; }
         inline void setBg(int x, int y, unsigned char ptn) { this->vram->bg[x & 0x3F][y & 0x3F] = ptn; }
+
+        inline bool loadPattern(const unsigned short* rom, size_t size)
+        {
+#ifdef VGSVDP_PTNTBL_ROM
+            if (size != 0x8000) {
+                return false;
+            } else {
+                this->vram->ptn = rom;
+                return true;
+            }
+#else
+            if (0x8000 < size) {
+                return false;
+            } else {
+                memcpy(this->vram->ptn, rom, size);
+                return true;
+            }
+#endif
+        }
 
         inline void setScroll(int x, int y)
         {
@@ -137,6 +160,7 @@ class VGS
             if (y < -7 || this->display.height <= y) {
                 return; // outside of display (top/bottom)
             }
+            int ptnidx = 64 * ptn;
             if (x < 0) {
                 if (x < -7) {
                     return; // outside of display (left)
@@ -148,7 +172,7 @@ class VGS
                     } else if (this->display.height <= y) {
                         return; // outside of display (bottom)
                     }
-                    memcpy(&this->display.buf[y * this->display.width], &this->vram->ptn[ptn][i * 8 - x], 16 + x * 2);
+                    memcpy(&this->display.buf[y * this->display.width], &this->vram->ptn[ptnidx + i * 8 - x], 16 + x * 2);
                 }
             } else if (this->display.width - 8 < x) {
                 if (this->display.width <= x) {
@@ -162,7 +186,7 @@ class VGS
                     } else if (this->display.height <= y) {
                         return; // outside of display (bottom)
                     }
-                    memcpy(&this->display.buf[y * this->display.width + x], &this->vram->ptn[ptn][i * 8], (8 - dx) * 2);
+                    memcpy(&this->display.buf[y * this->display.width + x], &this->vram->ptn[ptnidx + i * 8], (8 - dx) * 2);
                 }
             } else {
                 // no clip left/right
@@ -172,7 +196,7 @@ class VGS
                     } else if (this->display.height <= y) {
                         return; // outside of display (bottom)
                     }
-                    memcpy(&this->display.buf[y * this->display.width + x], &this->vram->ptn[ptn][i * 8], 16);
+                    memcpy(&this->display.buf[y * this->display.width + x], &this->vram->ptn[ptnidx + i * 8], 16);
                 }
             }
         }
@@ -198,9 +222,10 @@ class VGS
             for (int i = 0; i < 256; i++) {
                 auto oam = &this->vram->oam[i];
                 if (oam->ptn) {
+                    int ptnidx = 64 * oam->ptn;
                     if (-8 < oam->x && oam->x < this->display.width && -8 < oam->y && oam->y < this->display.height) {
                         for (int y = 0; y < 8; y++) {
-                            auto ptn = this->vram->ptn[oam->ptn];
+                            auto ptn = &this->vram->ptn[ptnidx];
                             if (oam->y + y < 0) {
                                 continue;
                             } else if (this->display.height <= oam->y + y) {
