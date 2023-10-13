@@ -1,5 +1,11 @@
 # Change Log
 
+## Version 1.3.0
+
+Pull Request: https://github.com/suzukiplan/vgssdk-pico/pull/5
+
+- コンパイルオプション VGSVDP_PTNTBL_ROM の指定によりパターンテーブルに ROM 領域を指定できるようにする
+
 ## Version 1.2.1
 
 Pull Request: https://github.com/suzukiplan/vgssdk-pico/pull/4
