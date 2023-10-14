@@ -35,7 +35,7 @@ extern "C" void vgs_setup()
     vgs.vdp.create(192, 240);
 
     // VDP のパターンエリアに画像を読み込む
-    memcpy(vgs.vdp.vram->ptn, rom_vram_ptn, sizeof(rom_vram_ptn));
+    vgs.vdp.loadPattern(rom_vram_ptn, sizeof(rom_vram_ptn));
 
     // ネームテーブルにパターン番号を設定
     for (int i = 0; i < 4096; i++) {

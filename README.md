@@ -61,6 +61,7 @@ vgssdk-pico は C++（C++11以降）用の次のクラス群を提供します�
 |:-|:-|
 |`-DVGSBGM_LIMIT_SIZE=数値`|BGMの非圧縮サイズ上限を KB 単位で指定（省略時: `108` KB）|
 |`-DVGSVDP_DISPLAY_LIMIT=数値`|VDPの表示領域サイズの上限を KB 単位で指定（省略時: `90` KB）|
+|`-DVGSVDP_PTNTBL_ROM`|VDP::RAMのパターンテーブルを ROM 領域にする（32KB の RAM 領域を確保）<br>※若干性能が劣化する可能性があります|
 |`-DVGSGFX_ROTATION=0`|画面の向きを Portrait にする|
 |`-DVGSGFX_ROTATION=1`|画面の向きを Landscape にする|
 |`-DVGSGFX_ROTATION=2`|画面の向きを Reverse Portrait にする __(省略時のデフォルト)__|
@@ -288,8 +289,9 @@ void VGS::GFX::push(int x, int y);
 ### VDP Basic Usage
 
 1. [`VGS::VDP::create`](#vgsvdpcreate-method) で幅 (width) と高さ (height) を指定して描画領域を作成
-2. [`VGS::VDP::vram`](#vgsvdpram-video-meemory) の値を更新
-3. [`VGS::VDP::render`](#vgsvdprender-method) で　[`VGS::VDP::vram`](#vgsvdpram-video-meemory) の内容を LCD に表示
+2. []
+3. [`VGS::VDP::vram`](#vgsvdpram-video-meemory) の値を更新
+4. [`VGS::VDP::render`](#vgsvdprender-method) で　[`VGS::VDP::vram`](#vgsvdpram-video-meemory) の内容を LCD に表示
 
 ### `VGS::VDP::create method`
 
@@ -298,7 +300,7 @@ bool VGS::VDP::create(int width, int height);
 ```
 
 - 描画領域を作成します
-- `width` × `height` × 2 (単位: bytes) が `VGSVDP_DISPLAY_LIMIT` のサイズを超える場合 `false` を返して失敗します
+- `width` × `height` × 2 (単位: bytes) が [`-DVGSVDP_DISPLAY_LIMIT`](#compile-flags) のサイズを超える場合 `false` を返して失敗します
 
 ### `VGS::VDP::render method`
 
@@ -308,15 +310,29 @@ void VGS::VDP::render(int x, int y);
 
 LCD の指定座標（x, y）に呼び出し時点の [`VGS::VDP::vram`](#vgsvdpram-video-meemory) の内容を描画します
 
+### `VGS::VDP::loadPattern method`
+
+```c++
+bool VGS::VDP::loadPattern(const unsigned short* rom, size_t size);
+```
+
+- 指定した ROM データを VRAM のパターンテーブル（`ptn`）に展開します
+- [`-DVGSVDP_PTNTBL_ROM`](#compile-flags) を指定している場合、`size` は必ず 32KB でなければ `false` を返します
+- [`-DVGSVDP_PTNTBL_ROM`](#compile-flags) を指定しない場合、`size` が 32KB より大きい場合に `false` を返します
+
 ### `VGS::VDP::RAM (Video Meemory)`
 
 ```c++
 typedef struct VGS::VDP::RAM_ {
-    unsigned char bg[64][64];    // BG name table: 64x64 (512x512px)
-    int scrollX;                 // BG scroll (X)
-    int scrollY;                 // BG scroll (Y)
-    OAM oam[256];                // object attribute memory (sprites)
-    unsigned short ptn[256][64]; // character pattern (8x8px x 2 x 256 bytes = 32KB = 128x128px)
+    unsigned char bg[64][64];  // BG name table: 64x64 (512x512px)
+    int scrollX;               // BG scroll (X)
+    int scrollY;               // BG scroll (Y)
+    OAM oam[256];              // object attribute memory (sprites)
+#ifdef VGSVDP_PTNTBL_ROM       //
+    const unsigned short* ptn; // charcter pattern (ROM)
+#else                          //
+    unsigned short ptn[16384]; // character pattern (8x8px x 2 x 256 bytes = 32KB = 128x128px)
+#endif                         //
 } VGS::VDP::RAM;
 ```
 
@@ -426,6 +442,8 @@ LZ4 で圧縮された VGS の可変方式 BGM データファイルを読み込
 > 1. [vgsmml](./tools/vgsmml) で MML をコンパイル
 > 2. [vgsftv](./tools/vgsftv) で可変化方式にコンバート
 > 3. [vgslz4](./tools/vgslz4) で LZ4 圧縮
+>
+> vgsftv でコンバート後のファイルサイズは [-DVGSBGM_LIMIT_SIZE](#compile-flags) で指定したサイズ以下でなければ正常に再生できない点を注意してください。
 
 ### `VGS::BGM::getMasterVolume method`
 
