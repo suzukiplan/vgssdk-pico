@@ -33,16 +33,18 @@ typedef struct _NOTE {
     unsigned int val;
 } NOTE;
 
-static void readWriteNotes(FILE* fpR, FILE* fpW, unsigned int* length, unsigned int* loop)
+static size_t readWriteNotes(const char* notes, size_t notesSize, char* result, unsigned int* length, unsigned int* loop)
 {
-    fseek(fpR, 0, SEEK_SET);
     NOTE note;
     std::map<int, int> indexMap;
     std::map<int, unsigned int> timeMap;
     int indexF = 0;
     int indexV = 0;
     unsigned int time = 0;
-    while (sizeof(NOTE) == fread(&note, 1, sizeof(NOTE), fpR)) {
+    while (sizeof(NOTE) <= notesSize) {
+        memcpy(&note, notes, sizeof(NOTE));
+        notes += sizeof(NOTE);
+        notesSize -= sizeof(NOTE);
         indexMap[indexF] = indexV;
         timeMap[indexF] = time;
         if (note.type == NTYPE_WAIT) {
@@ -50,23 +52,41 @@ static void readWriteNotes(FILE* fpR, FILE* fpW, unsigned int* length, unsigned 
                 // ignore 0 or minus
             } else if (note.val < 256) {
                 unsigned char op1 = NTYPE_WAIT_8 << 4;
-                if (fpW) fwrite(&op1, 1, 1, fpW);
+                if (result) {
+                    memcpy(result, &op1, 1);
+                    result++;
+                }
                 unsigned char v8 = note.val & 0xFF;
                 time += v8;
-                if (fpW) fwrite(&v8, 1, 1, fpW);
+                if (result) {
+                    memcpy(result, &v8, 1);
+                    result++;
+                }
                 indexV += 2;
             } else if (note.val < 65536) {
                 unsigned char op1 = NTYPE_WAIT_16 << 4;
-                if (fpW) fwrite(&op1, 1, 1, fpW);
+                if (result) {
+                    memcpy(result, &op1, 1);
+                    result++;
+                }
                 unsigned short v16 = note.val & 0xFFFF;
                 time += v16;
-                if (fpW) fwrite(&v16, 2, 1, fpW);
+                if (result) {
+                    memcpy(result, &v16, 2);
+                    result += 2;
+                }
                 indexV += 3;
             } else {
                 unsigned char op1 = NTYPE_WAIT_32 << 4;
-                if (fpW) fwrite(&op1, 1, 1, fpW);
+                if (result) {
+                    memcpy(result, &op1, 1);
+                    result++;
+                }
                 time += note.val;
-                if (fpW) fwrite(&note.val, 4, 1, fpW);
+                if (result) {
+                    memcpy(result, &note.val, 4);
+                    result += 4;
+                }
                 indexV += 5;
             }
             indexF++;
@@ -75,13 +95,19 @@ static void readWriteNotes(FILE* fpR, FILE* fpW, unsigned int* length, unsigned 
         unsigned char op1 = note.type & 0x0F;
         op1 <<= 4;
         op1 |= note.op1 & 0x0F;
-        if (fpW) fwrite(&op1, 1, 1, fpW);
+        if (result) {
+            memcpy(result, &op1, 1);
+            result++;
+        }
         indexV++;
         switch (note.type) {
             case NTYPE_JUMP: {
                 int a = indexMap[note.val];
                 *loop = timeMap[note.val];
-                if (fpW) fwrite(&a, 4, 1, fpW);
+                if (result) {
+                    memcpy(result, &a, 4);
+                    result += 4;
+                }
                 indexV += 4;
                 break;
             }
@@ -89,21 +115,29 @@ static void readWriteNotes(FILE* fpR, FILE* fpW, unsigned int* length, unsigned 
             case NTYPE_ENV2:
             case NTYPE_PDOWN: {
                 short v16 = (short)note.val;
-                if (fpW) fwrite(&v16, 2, 1, fpW);
+                if (result) {
+                    memcpy(result, &v16, 2);
+                    result += 2;
+                }
                 indexV += 2;
                 break;
             }
             case NTYPE_VOL:
             case NTYPE_MVOL: {
                 unsigned char v8 = note.val & 0xFF;
-                if (fpW) fwrite(&v8, 1, 1, fpW);
+                if (result) {
+                    memcpy(result, &v8, 1);
+                    result++;
+                }
                 indexV++;
                 break;
             }
             case NTYPE_KEYON: {
-                if (fpW) {
-                    fwrite(&note.op2, 1, 1, fpW);
-                    fwrite(&note.op3, 1, 1, fpW);
+                if (result) {
+                    memcpy(result, &note.op2, 1);
+                    result++;
+                    memcpy(result, &note.op3, 1);
+                    result++;
                 }
                 indexV += 2;
                 break;
@@ -119,6 +153,7 @@ static void readWriteNotes(FILE* fpR, FILE* fpW, unsigned int* length, unsigned 
         indexF++;
     }
     *length = timeMap[indexF - 1];
+    return indexV;
 }
 
 static char* toTimeStr(unsigned int duration)
@@ -131,32 +166,22 @@ static char* toTimeStr(unsigned int duration)
     return result;
 }
 
-int main(int argc, char* argv[])
+extern "C" int vgsftv(const void* notes, size_t notesSize, void** ftv, size_t* ftvSize)
 {
-    if (argc < 3) {
-        puts("vgsftv input output");
-        return 1;
-    }
-    FILE* fpR = fopen(argv[1], "rb");
-    FILE* fpW = fopen(argv[2], "wb");
-    if (!fpR || !fpW) {
-        puts("file open error");
-        if (fpR) fclose(fpR);
-        if (fpW) fclose(fpW);
-        return -1;
-    }
-
     unsigned int length = 0;
     unsigned int loop = 0;
-    readWriteNotes(fpR, nullptr, &length, &loop);
-    printf("Song length ... %s\n", toTimeStr(length));
-    printf("Loop position ... %s\n", toTimeStr(loop));
-    fwrite("VGSBGM-V", 1, 8, fpW);
-    fwrite(&length, 4, 1, fpW);
-    fwrite(&loop, 4, 1, fpW);
-    readWriteNotes(fpR, fpW, &length, &loop);
-
-    fclose(fpR);
-    fclose(fpW);
+    *ftvSize = readWriteNotes((const char*)notes, notesSize, nullptr, &length, &loop) + 16;
+    printf("song-length: %s\n", toTimeStr(length));
+    printf("loop-position: %s\n", toTimeStr(loop));
+    printf("ftv-size: %lu bytes\n", *ftvSize);
+    char* result = (char*)malloc(*ftvSize);
+    if (!result) {
+        return -1;
+    }
+    memcpy(&result[0], "VGSBGM-V", 8);
+    memcpy(&result[8], &length, 4);
+    memcpy(&result[12], &loop, 4);
+    readWriteNotes((const char*)notes, notesSize, &result[16], &length, &loop);
+    *ftv = result;
     return 0;
 }

@@ -441,15 +441,9 @@ BGM の再生がポーズ中かチェック
 void VGS::BGM::load(const void* buffer, size_t size);
 ```
 
-LZ4 で圧縮された VGS の可変方式 BGM データファイルを読み込む
+[vgsmml](./tools/vgsmml) でコンパイルされた VGS の可変方式 BGM データファイルを読み込む
 
-> 【参考】対応データ作成方法
-> 
-> 1. [vgsmml](./tools/vgsmml) で MML をコンパイル
-> 2. [vgsftv](./tools/vgsftv) で可変化方式にコンバート
-> 3. [vgslz4](./tools/vgslz4) で LZ4 圧縮
->
-> vgsftv でコンバート後のファイルサイズは [-DVGSBGM_LIMIT_SIZE](#compile-flags) で指定したサイズ以下でなければ正常に再生できない点を注意してください。
+> [vgsmml](./tools/vgsmml) でコンパイル時に出力される `ftv-size` が [-DVGSBGM_LIMIT_SIZE](#compile-flags) で指定したサイズ以下でなければ正常に再生できない点を注意してください。
 
 ### `VGS::BGM::getMasterVolume method`
 
@@ -628,10 +622,6 @@ NOTES:
 |[var2ext](./tools/varext/)|[bin2var](./tools/bin2var/)で生成したソースファイル群から `extern` 宣言するヘッダファイルを生成|
 |[bmp2img](./tools/bmp2img/)|256色Bitmap形式画像ファイルを `VGS::GFX::image` で扱える形式に変換|
 |[vgsmml](./tools/vgsmml/)|MMLコンパイラ|
-|[vgsftv](./tools/vgsftv/)|[vgsmml](./tools/vgsmml/)でコンパイルしたBGMを可変データ形式に変換|
-|[vgslz4](./tools/vgslz4/)|ファイルをLZ4で圧縮|
-
-> NOTE: vgsftv と vgslz4 は将来的に本リポジトリの vgsmml に統合予定
 
 ## License
 

@@ -50,10 +50,8 @@ example/assets/eff3.c: example/assets/eff3.wav
 	./tools/bin2var/bin2var -s ./example/assets/eff3.wav > ./example/assets/eff3.c
 
 example/assets/bgm.c: example/assets/bgm.mml
-	./tools/vgsmml/vgsmml ./example/assets/bgm.mml ./example/assets/bgm.bgm
-	./tools/vgsftv/vgsftv ./example/assets/bgm.bgm ./example/assets/bgm.ftv
-	./tools/vgslz4/vgslz4 ./example/assets/bgm.ftv ./example/assets/bgm.lz4
-	./tools/bin2var/bin2var -b ./example/assets/bgm.lz4 > ./example/assets/bgm.c
+	./tools/vgsmml/vgsmml ./example/assets/bgm.mml ./example/assets/bgm.bin
+	./tools/bin2var/bin2var -b ./example/assets/bgm.bin > ./example/assets/bgm.c
 
 example/assets/vram_ptn.c: example/assets/vram_ptn.bmp
 	./tools/bmp2img/bmp2img -t 8x8 ./example/assets/vram_ptn.bmp > ./example/assets/vram_ptn.c
