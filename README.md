@@ -289,7 +289,7 @@ void VGS::GFX::push(int x, int y);
 ### VDP Basic Usage
 
 1. [`VGS::VDP::create`](#vgsvdpcreate-method) で幅 (width) と高さ (height) を指定して描画領域を作成
-2. []
+2. [`VGS::VDP::loadPattern`](#vgsvdploadpattern-method) でパターンテーブルを更新
 3. [`VGS::VDP::vram`](#vgsvdpram-video-meemory) の値を更新
 4. [`VGS::VDP::render`](#vgsvdprender-method) で　[`VGS::VDP::vram`](#vgsvdpram-video-meemory) の内容を LCD に表示
 
@@ -301,6 +301,12 @@ bool VGS::VDP::create(int width, int height);
 
 - 描画領域を作成します
 - `width` × `height` × 2 (単位: bytes) が [`-DVGSVDP_DISPLAY_LIMIT`](#compile-flags) のサイズを超える場合 `false` を返して失敗します
+
+### `VGS::VDP::resize method`
+
+- 描画領域のサイズを変更します
+- `width` × `height` × 2 (単位: bytes) が [`-DVGSVDP_DISPLAY_LIMIT`](#compile-flags) のサイズを超える場合 `false` を返して失敗します
+- [VGS::VDP::create](#vgsvdpcreate-method)と異なり [`VGS::VDP::vram`](#vgsvdpram-video-meemory) のクリアが行われず、内容を維持したまま描画サイズのみを変更することができます
 
 ### `VGS::VDP::render method`
 

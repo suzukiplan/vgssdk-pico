@@ -90,6 +90,7 @@ class VGS
         RAM* vram;
 
         bool create(int width, int height);
+        bool resize(int width, int height);
         void render(int x, int y);
         inline int getWidth() { return this->display.width; }
         inline int getHeight() { return this->display.height; }
