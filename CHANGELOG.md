@@ -1,5 +1,12 @@
 # Change Log
 
+## Version 1.4.0
+
+Pull Request: https://github.com/suzukiplan/vgssdk-pico/pull/6
+
+- `VGS::VDP::resize` メソッドを追加
+- vgsftv と vgslz4 コマンドの機能を vgsmml に統合
+
 ## Version 1.3.0
 
 Pull Request: https://github.com/suzukiplan/vgssdk-pico/pull/5

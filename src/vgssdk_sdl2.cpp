@@ -351,6 +351,16 @@ void VGS::GFX::push(int x, int y)
 
 bool VGS::VDP::create(int width, int height)
 {
+    if (!this->resize(width, height)) {
+        return false;
+    }
+    memset(this->display.buf, 0, width * height * 2);
+    memset(this->vram, 0, sizeof(VDP::RAM));
+    return true;
+}
+
+bool VGS::VDP::resize(int width, int height)
+{
     if (sizeof(vdp_display_buf) < width * height * 2) {
         return false;
     }
@@ -358,8 +368,6 @@ bool VGS::VDP::create(int width, int height)
     this->display.height = height;
     this->display.buf = vdp_display_buf;
     this->vram = &vdp_vram;
-    memset(this->display.buf, 0, width * height * 2);
-    memset(this->vram, 0, sizeof(VDP::RAM));
     return true;
 }
 

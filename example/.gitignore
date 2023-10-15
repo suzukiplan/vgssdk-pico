@@ -2,6 +2,7 @@ bgm.c
 bgm.bgm
 bgm.ftv
 bgm.lz4
+bgm.bin
 eff1.c
 eff2.c
 eff3.c
