@@ -675,14 +675,14 @@ int main()
             } else if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
                     case SDLK_q: quit = true; break;
-                    case SDLK_UP: vgs.io.joypad.up = true; break;
-                    case SDLK_DOWN: vgs.io.joypad.down = true; break;
-                    case SDLK_LEFT: vgs.io.joypad.left = true; break;
-                    case SDLK_RIGHT: vgs.io.joypad.right = true; break;
-                    case SDLK_z: vgs.io.joypad.b = true; break;
-                    case SDLK_x: vgs.io.joypad.a = true; break;
-                    case SDLK_SPACE: vgs.io.joypad.start = true; break;
-                    case SDLK_ESCAPE: vgs.io.joypad.select = true; break;
+                    case SDLK_UP: vgs.io.joypad.up = true && vgs.io.isJoypadEnabled(); break;
+                    case SDLK_DOWN: vgs.io.joypad.down = true && vgs.io.isJoypadEnabled(); break;
+                    case SDLK_LEFT: vgs.io.joypad.left = true && vgs.io.isJoypadEnabled(); break;
+                    case SDLK_RIGHT: vgs.io.joypad.right = true && vgs.io.isJoypadEnabled(); break;
+                    case SDLK_z: vgs.io.joypad.b = true && vgs.io.isJoypadEnabled(); break;
+                    case SDLK_x: vgs.io.joypad.a = true && vgs.io.isJoypadEnabled(); break;
+                    case SDLK_SPACE: vgs.io.joypad.start = true && vgs.io.isJoypadEnabled(); break;
+                    case SDLK_ESCAPE: vgs.io.joypad.select = true && vgs.io.isJoypadEnabled(); break;
                 }
                 if (quit) {
                     break;
