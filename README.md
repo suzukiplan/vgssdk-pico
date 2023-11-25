@@ -578,23 +578,6 @@ void VGS::SoundEffect::setMasterVolume(int masterVolume);
 1. タッチパネル（シングルタッチ）
 2. 8ボタン（D-PAD + Start/Select + A/B）ジョイパッド <WIP>
 
-> 現時点の [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) ではジョイパッドの対応が行われていませんが、GPIO1〜8を用いて 8ボタン 形式のジョイパッドの入力をサポートすることができるものとします。
-
-### `VGS::IO::joypad structure` <WIP>
-
-```c++
-struct VGS::IO::Joypad {
-    bool up;
-    bool down;
-    bool left;
-    bool right;
-    bool start;
-    bool select;
-    bool a;
-    bool b;
-} joypad;
-```
-
 ### `VGS::IO::touch structure`
 
 ```c++
@@ -613,6 +596,39 @@ NOTES:
 
 - vgssdk-pico は本体がマルチタッチに対応していてもシングルタッチの状態のみ取得でき、マルチタッチ中は最も優先度が高いタッチ状態のみを取得するものとします
 - PC (macOS, Linux) では マウス を用いてタッチを行うものとして左クリックと右クリックを区別しないものとします
+
+### `VGS::IO::joypad structure`
+
+```c++
+struct VGS::IO::Joypad {
+    bool up;
+    bool down;
+    bool left;
+    bool right;
+    bool start;
+    bool select;
+    bool a;
+    bool b;
+} joypad;
+```
+
+NOTES:
+
+- ジョイパッドの入力状態を参照できます
+  - `true` 押している
+  - `false` 押していない
+- 参照を有効にするには [`vgs.io.setJoypadEnabled(true)`](#vgsiosetjoypadenabled-method) の実行が必要です
+
+### `VGS::IO::setJoypadEnabled method`
+
+```c++
+void VGS::IO::setJoypadEnabled(bool enabled);
+```
+
+- `enabled` : ジョイパッドの入力有効化の設定
+  - `true` 有効
+  - `false` 無効（デフォルト）
+- 有効にした場合 `vgs_loop` を呼び出す直前にジョイパッドの入力状態が取得されます
 
 ## Tools
 
