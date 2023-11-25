@@ -16,6 +16,8 @@ vgssdk-pico を用いることで、パソコン（Linux or macOS）のみで効
 
 ## PIN assign
 
+![./rp2040.png](./rp2040.png)
+
 |RP2040 (SoC)|ILI9341 (LCD)|FT6336U (CTP)|UDA1334A (DAC)|Joypad|
 |:-|:-|:-|:-|:-|
 |4: `GPIO2`|-|-|-|`A button`|
