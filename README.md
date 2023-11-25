@@ -14,6 +14,42 @@ vgssdk-pico を用いることで、パソコン（Linux or macOS）のみで効
 
 > スマホアプリを iOS のシミュレータ や Android のエミュレータで開発するようなイメージのものと思っていただければ大丈夫です。
 
+## PIN assign
+
+![./rp2040.png](./rp2040.png)
+
+|RP2040 (SoC)|ILI9341 (LCD)|FT6336U (CTP)|UDA1334A (DAC)|Joypad|
+|:-|:-|:-|:-|:-|
+|4: `GPIO2`|-|-|-|`A button`|
+|5: `GPIO3`|-|-|-|`B button`|
+|6: `GPIO4`|-|`CTP_SDA`|-|-|
+|7: `GPIO5`|-|`CTP_SCK`|-|-|
+|9: `GPIO6`|-|-|-|`Down`|
+|10: `GPIO7`|-|-|-|`Up`|
+|11: `GPIO8`|-|-|-|`Left`|
+|12: `GPIO9`|-|-|-|`Right`|
+|13: `GND`|-|-|-|`GND`|
+|14: `GPIO10`|-|-|-|`Start`|
+|15: `GPIO11`|-|-|-|`Select`|
+|17: `GPIO13`|-|-|`DIN`|-|
+|18: `GND`|-|-|`GND`|-|
+|19: `GPIO14`|-|-|`BCLK`|-|
+|20: `GPIO15`|-|-|`WSEL`|-|
+|21: `GPIO16`|`SDO (MISO)`|-|-|-|
+|22: `GPIO17`|`LCD_CS`|-|-|-|
+|24: `GPIO18`|`SCK`|-|-|-|
+|25: `GPIO19`|`SDI (MOSI)`|-|-|-|
+|26: `GPIO20`|-|`CTP_RST`|-|-|
+|27: `GPIO21`|-|`CTP_INT`|-|-|
+|29: `GPIO22`|`LCD_RST`|-|-|-|
+|32: `GPIO27`|`LED`|-|-|-|
+|34: `GPIO28`|`LCD_RS or LCD_DC`|-|-|-|
+|36: `3.3V`|`VCC`|-|-|-|
+|38: `GND`|`GND`|-|-|-|
+|40: `VOUT (5V)`|-|-|`VIN`|-|
+
+> `Joypad` の配線については [コチラの記事](https://note.com/suzukiplan/n/ncccafb305eae) を参照してください。
+
 ## How to build example app
 
 [./example/README.md](./example/README.md) を参照してください。
@@ -578,23 +614,6 @@ void VGS::SoundEffect::setMasterVolume(int masterVolume);
 1. タッチパネル（シングルタッチ）
 2. 8ボタン（D-PAD + Start/Select + A/B）ジョイパッド <WIP>
 
-> 現時点の [東方VGS実機版](https://github.com/suzukiplan/tohovgs-pico) ではジョイパッドの対応が行われていませんが、GPIO1〜8を用いて 8ボタン 形式のジョイパッドの入力をサポートすることができるものとします。
-
-### `VGS::IO::joypad structure` <WIP>
-
-```c++
-struct VGS::IO::Joypad {
-    bool up;
-    bool down;
-    bool left;
-    bool right;
-    bool start;
-    bool select;
-    bool a;
-    bool b;
-} joypad;
-```
-
 ### `VGS::IO::touch structure`
 
 ```c++
@@ -613,6 +632,39 @@ NOTES:
 
 - vgssdk-pico は本体がマルチタッチに対応していてもシングルタッチの状態のみ取得でき、マルチタッチ中は最も優先度が高いタッチ状態のみを取得するものとします
 - PC (macOS, Linux) では マウス を用いてタッチを行うものとして左クリックと右クリックを区別しないものとします
+
+### `VGS::IO::joypad structure`
+
+```c++
+struct VGS::IO::Joypad {
+    bool up;
+    bool down;
+    bool left;
+    bool right;
+    bool start;
+    bool select;
+    bool a;
+    bool b;
+} joypad;
+```
+
+NOTES:
+
+- ジョイパッドの入力状態を参照できます
+  - `true` 押している
+  - `false` 押していない
+- 参照を有効にするには [`vgs.io.setJoypadEnabled(true)`](#vgsiosetjoypadenabled-method) の実行が必要です
+
+### `VGS::IO::setJoypadEnabled method`
+
+```c++
+void VGS::IO::setJoypadEnabled(bool enabled);
+```
+
+- `enabled` : ジョイパッドの入力有効化の設定
+  - `true` 有効
+  - `false` 無効（デフォルト）
+- 有効にした場合 `vgs_loop` を呼び出す直前にジョイパッドの入力状態が取得されます
 
 ## Tools
 

@@ -109,8 +109,8 @@ int main(int argc, char* argv[])
     }
     BitmapHeader head;
     memcpy(&head, &bmp[14], sizeof(head));
-    if (8 != head.bits) {
-        fprintf(stderr, "invalid file format (not 8bit color mode)\n");
+    if (8 != head.bits && 24 != head.bits) {
+        fprintf(stderr, "invalid file format (not 8bit/24bit color mode: %d)\n", head.bits);
         free(bmp);
         return -1;
     }
@@ -132,26 +132,46 @@ int main(int argc, char* argv[])
 
     unsigned int offset;
     memcpy(&offset, &bmp[0xA], 4);
-    unsigned char* palPtr = &bmp[14 + 40];
-    unsigned short pal565[256];
-    for (int i = 0; i < 256; i++, palPtr += 4) {
-        pal565[i] = (palPtr[2] & 0b11111000) >> 3;
-        pal565[i] <<= 6;
-        pal565[i] |= (palPtr[1] & 0b11111100) >> 2;
-        pal565[i] <<= 5;
-        pal565[i] |= (palPtr[0] & 0b11111000) >> 3;
-        unsigned short work = (pal565[i] & 0xFF00) >> 8;
-        pal565[i] &= 0xFF;
-        pal565[i] <<= 8;
-        pal565[i] |= work;
-    }
     int imgSize = head.width * head.height * 2;
     unsigned short* img = (unsigned short*)malloc(imgSize);
     unsigned short* imgPtr = img;
-    unsigned char* bmpPtr = &bmp[offset];
-    for (int y = 0; y < head.height; y++) {
-        for (int x = 0; x < head.width; x++) {
-            imgPtr[y * head.width + x] = pal565[bmpPtr[(head.height - y - 1) * head.width + x]];
+    if (8 == head.bits) {
+        unsigned char* palPtr = &bmp[14 + 40];
+        unsigned short pal565[256];
+        for (int i = 0; i < 256; i++, palPtr += 4) {
+            pal565[i] = (palPtr[2] & 0b11111000) >> 3;
+            pal565[i] <<= 6;
+            pal565[i] |= (palPtr[1] & 0b11111100) >> 2;
+            pal565[i] <<= 5;
+            pal565[i] |= (palPtr[0] & 0b11111000) >> 3;
+            unsigned short work = (pal565[i] & 0xFF00) >> 8;
+            pal565[i] &= 0xFF;
+            pal565[i] <<= 8;
+            pal565[i] |= work;
+        }
+        unsigned char* bmpPtr = &bmp[offset];
+        const int dataWith = (head.width / 4 + (head.width % 4 ? 1 : 0)) * 4;
+        for (int y = 0; y < head.height; y++) {
+            for (int x = 0; x < head.width; x++) {
+                imgPtr[y * head.width + x] = pal565[bmpPtr[(head.height - y - 1) * dataWith + x]];
+            }
+        }
+    } else if (24 == head.bits) {
+        unsigned char* bmpPtr = &bmp[offset];
+        const int bpp = 3;
+        const int dataWith = (head.width / 4 + (head.width % 4 ? 1 : 0)) * 4 * bpp;
+        for (int y = 0; y < head.height; y++) {
+            for (int x = 0; x < head.width; x++) {
+                unsigned short b = bmpPtr[(head.height - y - 1) * dataWith + x * bpp + 0];
+                unsigned short g = bmpPtr[(head.height - y - 1) * dataWith + x * bpp + 1];
+                unsigned short r = bmpPtr[(head.height - y - 1) * dataWith + x * bpp + 2];
+                r = (r & 0b11111000) << 8;
+                g = (g & 0b11111100) << 3;
+                b = (b & 0b11111000) >> 3;
+                unsigned short rgb = r | g | b;
+                imgPtr[y * head.width + x] = (rgb & 0xFF00) >> 8;
+                imgPtr[y * head.width + x] |= (rgb & 0xFF) << 8;
+            }
         }
     }
     free(bmp);

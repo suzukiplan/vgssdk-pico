@@ -8,12 +8,20 @@ OBJECTS_IMAGE = image.o ${OBJECTS_SDK}
 OBJECTS_SOUND = sound.o bgm.o small_font.o eff1.o eff2.o eff3.o ${OBJECTS_SDK}
 OBJECTS_SANDSTORM = sandstorm.o ${OBJECTS_SDK}
 OBJECTS_VDP = vdp_test.o small_font.o vram_ptn.o bgm.o eff1.o ${OBJECTS_SDK}
+OBJECTS_JOYPAD = joypad.o img_joypad.o img_joypad_button_on.o img_joypad_cursor_on.o img_joypad_ctrl_on.o img_joypad_button_off.o img_joypad_cursor_off.o img_joypad_ctrl_off.o ${OBJECTS_SDK}
 ASSET_SOURCE = example/assets/small_font.c\
 	example/assets/eff1.c\
 	example/assets/eff2.c\
 	example/assets/eff3.c\
 	example/assets/bgm.c\
-	example/assets/vram_ptn.c
+	example/assets/vram_ptn.c\
+	example/assets/img_joypad.c\
+	example/assets/img_joypad_ctrl_on.c\
+	example/assets/img_joypad_cursor_on.c\
+	example/assets/img_joypad_button_on.c\
+	example/assets/img_joypad_ctrl_off.c\
+	example/assets/img_joypad_cursor_off.c\
+	example/assets/img_joypad_button_off.c
 
 all:
 	make roms
@@ -24,6 +32,7 @@ all:
 	make bin/sound
 	make bin/sandstorm
 	make bin/vdp
+	make bin/joypad
 
 clean:
 	rm -f $(ASSET_SOURCE)
@@ -56,6 +65,27 @@ example/assets/bgm.c: example/assets/bgm.mml
 example/assets/vram_ptn.c: example/assets/vram_ptn.bmp
 	./tools/bmp2img/bmp2img -t 8x8 ./example/assets/vram_ptn.bmp > ./example/assets/vram_ptn.c
 
+example/assets/img_joypad.c: example/assets/joypad.bmp
+	./tools/bmp2img/bmp2img ./example/assets/joypad.bmp > ./example/assets/img_joypad.c
+
+example/assets/img_joypad_ctrl_on.c: example/assets/joypad_ctrl_on.bmp
+	./tools/bmp2img/bmp2img ./example/assets/joypad_ctrl_on.bmp > ./example/assets/img_joypad_ctrl_on.c
+
+example/assets/img_joypad_cursor_on.c: example/assets/joypad_cursor_on.bmp
+	./tools/bmp2img/bmp2img ./example/assets/joypad_cursor_on.bmp > ./example/assets/img_joypad_cursor_on.c
+
+example/assets/img_joypad_button_on.c: example/assets/joypad_button_on.bmp
+	./tools/bmp2img/bmp2img ./example/assets/joypad_button_on.bmp > ./example/assets/img_joypad_button_on.c
+
+example/assets/img_joypad_ctrl_off.c: example/assets/joypad_ctrl_off.bmp
+	./tools/bmp2img/bmp2img ./example/assets/joypad_ctrl_off.bmp > ./example/assets/img_joypad_ctrl_off.c
+
+example/assets/img_joypad_cursor_off.c: example/assets/joypad_cursor_off.bmp
+	./tools/bmp2img/bmp2img ./example/assets/joypad_cursor_off.bmp > ./example/assets/img_joypad_cursor_off.c
+
+example/assets/img_joypad_button_off.c: example/assets/joypad_button_off.bmp
+	./tools/bmp2img/bmp2img ./example/assets/joypad_button_off.bmp > ./example/assets/img_joypad_button_off.c
+
 bin/rgb: $(OBJECTS_RGB)
 	g++ -o bin/rgb $(OBJECTS_RGB) -L/usr/local/lib -lSDL2
 
@@ -74,6 +104,9 @@ bin/sandstorm: ${OBJECTS_SANDSTORM}
 bin/vdp: $(OBJECTS_VDP)
 	g++ -o bin/vdp $(OBJECTS_VDP) -L/usr/local/lib -lSDL2
 
+bin/joypad: $(OBJECTS_JOYPAD)
+	g++ -o bin/joypad $(OBJECTS_JOYPAD) -L/usr/local/lib -lSDL2
+
 bin:
 	mkdir bin
 
@@ -84,6 +117,7 @@ format:
 	make execute-format FILENAME=./example/sound/sound.cpp
 	make execute-format FILENAME=./example/sandstorm/sandstorm.cpp
 	make execute-format FILENAME=./example/vdp/vdp_test.cpp
+	make execute-format FILENAME=./example/joypad/joypad.cpp
 	make execute-format FILENAME=./src/FT6336U.hpp
 	make execute-format FILENAME=./src/vgssdk_sdl2.cpp
 	make execute-format FILENAME=./src/vgssdk_pico.cpp
@@ -103,6 +137,9 @@ touch.o: example/touch/touch.cpp src/vgssdk.h
 
 vdp_test.o: example/vdp/vdp_test.cpp src/vgssdk.h
 	g++ $(CPPFLAGS) -I./src -c example/vdp/vdp_test.cpp
+
+joypad.o: example/joypad/joypad.cpp src/vgssdk.h
+	g++ $(CPPFLAGS) -I./src -c example/joypad/joypad.cpp
 
 sandstorm.o: example/sandstorm/sandstorm.cpp src/vgssdk.h
 	g++ $(CPPFLAGS) -I./src -c example/sandstorm/sandstorm.cpp
@@ -139,3 +176,24 @@ eff2.o: example/assets/eff2.c
 
 eff3.o: example/assets/eff3.c
 	gcc $(CLAGS) -c example/assets/eff3.c
+
+img_joypad.o: example/assets/img_joypad.c
+	gcc $(CLAGS) -c example/assets/img_joypad.c
+
+img_joypad_button_on.o: example/assets/img_joypad_button_on.c
+	gcc $(CLAGS) -c example/assets/img_joypad_button_on.c
+
+img_joypad_cursor_on.o: example/assets/img_joypad_cursor_on.c
+	gcc $(CLAGS) -c example/assets/img_joypad_cursor_on.c
+
+img_joypad_ctrl_on.o: example/assets/img_joypad_ctrl_on.c
+	gcc $(CLAGS) -c example/assets/img_joypad_ctrl_on.c
+
+img_joypad_button_off.o: example/assets/img_joypad_button_off.c
+	gcc $(CLAGS) -c example/assets/img_joypad_button_off.c
+
+img_joypad_cursor_off.o: example/assets/img_joypad_cursor_off.c
+	gcc $(CLAGS) -c example/assets/img_joypad_cursor_off.c
+
+img_joypad_ctrl_off.o: example/assets/img_joypad_ctrl_off.c
+	gcc $(CLAGS) -c example/assets/img_joypad_ctrl_off.c

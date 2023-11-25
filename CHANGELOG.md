@@ -1,5 +1,12 @@
 # Change Log
 
+## Version 1.5.0
+
+Pull Request: https://github.com/suzukiplan/vgssdk-pico/pull/7
+
+- ジョイパッドの入力をサポート
+- bmp2img で 24 ビット Bitmap 形式をサポート
+
 ## Version 1.4.0
 
 Pull Request: https://github.com/suzukiplan/vgssdk-pico/pull/6

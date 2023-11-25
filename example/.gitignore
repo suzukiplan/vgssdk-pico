@@ -8,3 +8,4 @@ eff2.c
 eff3.c
 small_font.c
 vram_ptn.c
+assets/img_*.c

@@ -673,9 +673,30 @@ int main()
                 quit = true;
                 break;
             } else if (event.type == SDL_KEYDOWN) {
-                if (SDLK_q == event.key.keysym.sym) {
-                    quit = true;
+                switch (event.key.keysym.sym) {
+                    case SDLK_q: quit = true; break;
+                    case SDLK_UP: vgs.io.joypad.up = true && vgs.io.isJoypadEnabled(); break;
+                    case SDLK_DOWN: vgs.io.joypad.down = true && vgs.io.isJoypadEnabled(); break;
+                    case SDLK_LEFT: vgs.io.joypad.left = true && vgs.io.isJoypadEnabled(); break;
+                    case SDLK_RIGHT: vgs.io.joypad.right = true && vgs.io.isJoypadEnabled(); break;
+                    case SDLK_z: vgs.io.joypad.b = true && vgs.io.isJoypadEnabled(); break;
+                    case SDLK_x: vgs.io.joypad.a = true && vgs.io.isJoypadEnabled(); break;
+                    case SDLK_SPACE: vgs.io.joypad.start = true && vgs.io.isJoypadEnabled(); break;
+                    case SDLK_ESCAPE: vgs.io.joypad.select = true && vgs.io.isJoypadEnabled(); break;
+                }
+                if (quit) {
                     break;
+                }
+            } else if (event.type == SDL_KEYUP) {
+                switch (event.key.keysym.sym) {
+                    case SDLK_UP: vgs.io.joypad.up = false; break;
+                    case SDLK_DOWN: vgs.io.joypad.down = false; break;
+                    case SDLK_LEFT: vgs.io.joypad.left = false; break;
+                    case SDLK_RIGHT: vgs.io.joypad.right = false; break;
+                    case SDLK_z: vgs.io.joypad.b = false; break;
+                    case SDLK_x: vgs.io.joypad.a = false; break;
+                    case SDLK_SPACE: vgs.io.joypad.start = false; break;
+                    case SDLK_ESCAPE: vgs.io.joypad.select = false; break;
                 }
             } else if (event.type == SDL_MOUSEBUTTONDOWN) {
                 vgs.io.touch.on = true;

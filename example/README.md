@@ -10,6 +10,7 @@
 |[./sandstorm/sandstorm.cpp](./sandstorm/sandstorm.cpp)|![./sandstorm.png](./sandstorm.png)|砂嵐|
 |[./sound/sound.cpp](./sound/sound.cpp)|![./sound.png](./sound.png)|BGMと効果音を再生|
 |[./touch/touch.cpp](./touch/touch.cpp)|![./touch.png](./touch.png)|タッチで描画する簡易ペイント|
+|[./joypad/joypad.cpp](./joypad/joypad.cpp)|![./joypad.png](./joypad.png)|ジョイパッドの入力テスト|
 
 ## How to Build
 
