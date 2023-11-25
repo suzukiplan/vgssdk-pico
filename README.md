@@ -16,26 +16,37 @@ vgssdk-pico を用いることで、パソコン（Linux or macOS）のみで効
 
 ## PIN assign
 
-|RP2040 (SoC)|ILI9341 (LCD)|FT6336U (CTP)|UDA1334A (DAC)|
-|:-|:-|:-|:-|
-|6: `GPIO4`|-|`CTP_SDA`|-|
-|7: `GPIO5`|-|`CTP_SCK`|-|
-|17: `GPIO13`|-|-|`DIN`|
-|18: `GND`|-|-|`GND`|
-|19: `GPIO14`|-|-|`BCLK`|
-|20: `GPIO15`|-|-|`WSEL`|
-|21: `GPIO16`|`SDO (MISO)`|-|-|
-|22: `GPIO17`|`LCD_CS`|-|-|
-|24: `GPIO18`|`SCK`|-|-|
-|25: `GPIO19`|`SDI (MOSI)`|-|-|
-|26: `GPIO20`|-|`CTP_RST`|-|
-|27: `GPIO21`|-|`CTP_INT`|-|
-|29: `GPIO22`|`LCD_RST`|-|-|
-|32: `GPIO27`|`LED`|-|-|
-|34: `GPIO28`|`LCD_RS or LCD_DC`|-|-|
-|36: `3.3V`|`VCC`|-|-|
-|38: `GND`|`GND`|-|-|
-|40: `VOUT (5V)`|-|-|`VIN`|
+|RP2040 (SoC)|ILI9341 (LCD)|FT6336U (CTP)|UDA1334A (DAC)|Joypad|
+|:-|:-|:-|:-|:-|
+|4: `GPIO2`|-|-|-|`A button`|
+|5: `GPIO3`|-|-|-|`B button`|
+|6: `GPIO4`|-|`CTP_SDA`|-|-|
+|7: `GPIO5`|-|`CTP_SCK`|-|-|
+|9: `GPIO6`|-|-|-|`Down`|
+|10: `GPIO7`|-|-|-|`Up`|
+|11: `GPIO8`|-|-|-|`Left`|
+|12: `GPIO9`|-|-|-|`Right`|
+|13: `GND`|-|-|-|`GND`|
+|14: `GPIO10`|-|-|-|`Start`|
+|15: `GPIO11`|-|-|-|`Select`|
+|17: `GPIO13`|-|-|`DIN`|-|
+|18: `GND`|-|-|`GND`|-|
+|19: `GPIO14`|-|-|`BCLK`|-|
+|20: `GPIO15`|-|-|`WSEL`|-|
+|21: `GPIO16`|`SDO (MISO)`|-|-|-|
+|22: `GPIO17`|`LCD_CS`|-|-|-|
+|24: `GPIO18`|`SCK`|-|-|-|
+|25: `GPIO19`|`SDI (MOSI)`|-|-|-|
+|26: `GPIO20`|-|`CTP_RST`|-|-|
+|27: `GPIO21`|-|`CTP_INT`|-|-|
+|29: `GPIO22`|`LCD_RST`|-|-|-|
+|32: `GPIO27`|`LED`|-|-|-|
+|34: `GPIO28`|`LCD_RS or LCD_DC`|-|-|-|
+|36: `3.3V`|`VCC`|-|-|-|
+|38: `GND`|`GND`|-|-|-|
+|40: `VOUT (5V)`|-|-|`VIN`|-|
+
+> `Joypad` の配線については [コチラの記事](https://note.com/suzukiplan/n/ncccafb305eae) を参照してください。
 
 ## How to build example app
 
