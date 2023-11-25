@@ -428,6 +428,14 @@ void loop1()
 void setup()
 {
     pinMode(25, OUTPUT);
+    pinMode(JOYPAD_UP_PIN, INPUT_PULLUP);
+    pinMode(JOYPAD_DOWN_PIN, INPUT_PULLUP);
+    pinMode(JOYPAD_LEFT_PIN, INPUT_PULLUP);
+    pinMode(JOYPAD_RIGHT_PIN, INPUT_PULLUP);
+    pinMode(JOYPAD_A_PIN, INPUT_PULLUP);
+    pinMode(JOYPAD_B_PIN, INPUT_PULLUP);
+    pinMode(JOYPAD_SELECT_PIN, INPUT_PULLUP);
+    pinMode(JOYPAD_START_PIN, INPUT_PULLUP);
     vgs.led(true);
 
     // LCD のバックライトを点灯
@@ -484,5 +492,15 @@ void loop()
     vgs.io.touch.x = 319 - ctp.status.y;
     vgs.io.touch.y = ctp.status.x;
 #endif
+    if (vgs.io.isJoypadEnabled()) {
+        vgs.io.joypad.up = digitalRead(JOYPAD_UP_PIN) == LOW;
+        vgs.io.joypad.down = digitalRead(JOYPAD_DOWN_PIN) == LOW;
+        vgs.io.joypad.left = digitalRead(JOYPAD_LEFT_PIN) == LOW;
+        vgs.io.joypad.right = digitalRead(JOYPAD_RIGHT_PIN) == LOW;
+        vgs.io.joypad.a = digitalRead(JOYPAD_A_PIN) == LOW;
+        vgs.io.joypad.b = digitalRead(JOYPAD_B_PIN) == LOW;
+        vgs.io.joypad.select = digitalRead(JOYPAD_SELECT_PIN) == LOW;
+        vgs.io.joypad.start = digitalRead(JOYPAD_START_PIN) == LOW;
+    }
     vgs_loop();
 }

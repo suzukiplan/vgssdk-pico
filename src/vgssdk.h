@@ -296,17 +296,19 @@ class VGS
 
     class IO
     {
+      private:
+        bool enabledJoypad;
+
       public:
-        // TODO: Joypad for tohovgs-pico is not implemented yet.
         struct Joypad {
-            bool up;     // TODO: Assuming GPIO1 assignment
-            bool down;   // TODO: Assuming GPIO2 assignment
-            bool left;   // TODO: Assuming GPIO3 assignment
-            bool right;  // TODO: Assuming GPIO4 assignment
-            bool start;  // TODO: Assuming GPIO5 assignment
-            bool select; // TODO: Assuming GPIO6 assignment
-            bool a;      // TODO: Assuming GPIO7 assignment
-            bool b;      // TODO: Assuming GPIO8 assignment
+            bool up;     // GPIO7
+            bool down;   // GPIO6
+            bool left;   // GPIO8
+            bool right;  // GPIO9
+            bool start;  // GPIO10
+            bool select; // GPIO11
+            bool a;      // GPIO2
+            bool b;      // GPIO3
         } joypad;
 
         struct Touch {
@@ -319,7 +321,11 @@ class VGS
         {
             memset(&joypad, 0, sizeof(joypad));
             memset(&touch, 0, sizeof(touch));
+            enabledJoypad = false;
         }
+
+        void setJoypadEnabled(bool enabled) { enabledJoypad = enabled; }
+        bool isJoypadEnabled() { return enabledJoypad; }
     };
 
     bool halt;
